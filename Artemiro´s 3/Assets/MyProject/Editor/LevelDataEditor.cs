@@ -59,12 +59,16 @@ public class LevelDataEditor : Editor
                 tile.tipo = (LevelData.TipoDeTile)EditorGUILayout.EnumPopup(tile.tipo, GUILayout.Width(60));
                 if (tile.tipo == LevelData.TipoDeTile.Monstro)
                 {
+                    EditorGUILayout.BeginHorizontal();
                     tile.corDoMonstro = EditorGUILayout.IntField(tile.corDoMonstro, GUILayout.Width(30));
                     tile.corDoMonstro = Mathf.Max(0, tile.corDoMonstro);
+                    tile.escondido = EditorGUILayout.Toggle(tile.escondido, GUILayout.Width(16));
+                    EditorGUILayout.EndHorizontal();
                 }
                 else
                 {
                     tile.corDoMonstro = 0;
+                    tile.escondido = false;
                 }
                 data.layoutDoGrid[y].colunas[x] = tile;
             }

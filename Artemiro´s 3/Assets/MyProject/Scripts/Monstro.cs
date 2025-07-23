@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+using System.Collections.Generic;
 public class Monstro : MonoBehaviour
 {
 
@@ -8,7 +8,8 @@ public class Monstro : MonoBehaviour
     public int cor;
     public int tipo; // Tipo dele, se é 1 para o normal, 2 para o BI, e 3 para o Tri
     public bool vazio; // Usado para paredes ou blocos que não podem ser movidos
-
+    public bool escondido; // Usado para monstros que estão escondidos e precisam de mais um click para serem revelados
+   
     // No caso de monstros de 2 ou 3 peças, essas referências serão usadas para conectar as partes
 
 
@@ -17,4 +18,12 @@ public class Monstro : MonoBehaviour
 
     // Para mostros de 3 peças
     public Monstro terceiraParte;  
+}
+
+
+public class GeradorDeMonstros: Monstro
+{
+    public List<int> monstrosParaGerar; // O monstro que será gerado quando o gerador for ativado
+    // Método para ativar o gerador e gerar os monstros
+   
 }

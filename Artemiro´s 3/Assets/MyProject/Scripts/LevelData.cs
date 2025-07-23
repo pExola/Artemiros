@@ -9,7 +9,8 @@ public class LevelData : ScriptableObject
     {
         Vazio,
         Monstro,
-        Parede
+        Parede,
+        Gerador
     }
 
     [System.Serializable]
@@ -17,6 +18,8 @@ public class LevelData : ScriptableObject
     {
         public TipoDeTile tipo;
         public int corDoMonstro; // Usado apenas se o tipo for Monstro
+        public bool escondido; // Usado para monstros que estão escondidos e precisam de mais um click para serem revelados
+        public List<int> MonstrosASeremGeradosPeloGerador; // Usado apenas se o tipo for Gerador
     }
 
     [System.Serializable]

@@ -99,7 +99,7 @@ public class LevelDataGridEditorWindow : EditorWindow
         }
 
         // --- Grid Visual e Edição Inline ---
-        scroll = EditorGUILayout.BeginScrollView(scroll, GUILayout.Height(altura * 34 + 10));
+        scroll = EditorGUILayout.BeginScrollView(scroll, GUILayout.Height(altura * 44 + 10));
         for (int y = 0; y < altura; y++)
         {
             EditorGUILayout.BeginHorizontal();
@@ -118,8 +118,8 @@ public class LevelDataGridEditorWindow : EditorWindow
                     GUI.backgroundColor = Color.green;
                 else
                     GUI.backgroundColor = Color.white;
-                EditorGUILayout.BeginVertical(GUILayout.Width(38));
-                if (GUILayout.Button(label, GUILayout.Width(30), GUILayout.Height(30)))
+                EditorGUILayout.BeginVertical(GUILayout.Width(60));
+                if (GUILayout.Button(label, GUILayout.Width(50), GUILayout.Height(40)))
                 {
                     if (tile.tipo == LevelData.TipoDeTile.Monstro)
                     {
@@ -137,16 +137,43 @@ public class LevelDataGridEditorWindow : EditorWindow
                         }
                     }
                 }
-                // Edição inline do tipo e cor
-                tile.tipo = (LevelData.TipoDeTile)EditorGUILayout.EnumPopup(tile.tipo, GUILayout.Width(36));
+                // Edição inline do tipo, cor e escondido/gerador
+                tile.tipo = (LevelData.TipoDeTile)EditorGUILayout.EnumPopup(tile.tipo, GUILayout.Width(54));
                 if (tile.tipo == LevelData.TipoDeTile.Monstro)
                 {
-                    tile.corDoMonstro = EditorGUILayout.IntField(tile.corDoMonstro, GUILayout.Width(36));
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label("Cor:", GUILayout.Width(28));
+                    tile.corDoMonstro = EditorGUILayout.IntField(tile.corDoMonstro, GUILayout.Width(28));
                     tile.corDoMonstro = Mathf.Max(0, tile.corDoMonstro);
+                    tile.escondido = EditorGUILayout.Toggle(tile.escondido, GUILayout.Width(18));
+                    EditorGUILayout.EndHorizontal();
+                }
+                else if (tile.tipo == LevelData.TipoDeTile.Gerador)
+                {
+                    if (tile.MonstrosASeremGeradosPeloGerador == null)
+                        tile.MonstrosASeremGeradosPeloGerador = new List<int>();
+                    GUILayout.Label("Cores do Gerador:", GUILayout.Width(90));
+                    for (int i = 0; i < tile.MonstrosASeremGeradosPeloGerador.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        GUILayout.Label($"{i+1}", GUILayout.Width(18));
+                        tile.MonstrosASeremGeradosPeloGerador[i] = EditorGUILayout.IntField(tile.MonstrosASeremGeradosPeloGerador[i], GUILayout.Width(28));
+                        if (GUILayout.Button("-", GUILayout.Width(20)))
+                        {
+                            tile.MonstrosASeremGeradosPeloGerador.RemoveAt(i);
+                            i--;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    if (GUILayout.Button("Adicionar Cor", GUILayout.Width(100)))
+                    {
+                        tile.MonstrosASeremGeradosPeloGerador.Add(0);
+                    }
                 }
                 else
                 {
                     tile.corDoMonstro = 0;
+                    tile.escondido = false;
                 }
                 levelData.layoutDoGrid[y].colunas[x] = tile;
                 EditorGUILayout.EndVertical();

@@ -1,13 +1,17 @@
-﻿using System;
+﻿using TMPro;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.VisualScripting;
 
 public class GridController : MonoBehaviour
 {
     [Header("Configuração do Nível")]
     public LevelData nivelAtual;
+    public float MaximoDeSegundos = 60; // Tempo máximo para completar o nível, em segundos
+    public TMPro.TMP_Text tempoRestanteText; // Arraste aqui o componente TextMeshPro para mostrar o tempo restante
 
     [Header("Configuração do Grid")]
     private int gridWidth;
@@ -15,9 +19,10 @@ public class GridController : MonoBehaviour
 
     [Header("Prefabs")]
     public GameObject gridCellPrefab; // Arraste aqui o Prefab da célula de fundo
-    public GameObject monstroPrefab;
+    public List<GameObject> monstroPrefab;
     public GameObject paredePrefab;
-
+    public GameObject prefabCaixa; // Prefab para monstros escondidos (caixas)
+    public GameObject prefabGerador; // Prefab para o gerador de monstros
     [Header("UI do Armazém")]
     public Transform armazemUIParent; // Arraste o painel da UI para cá
     public GameObject monstroIconPrefab; // Arraste o prefab do ícone do monstro para cá
@@ -68,51 +73,64 @@ public class GridController : MonoBehaviour
                 // 1. Desenha a célula de fundo
                 if (gridCellPrefab != null)
                 {
-                    // Instancia a célula de fundo na posição correta
                     GameObject cell = Instantiate(gridCellPrefab, new Vector3(x, y, 1), Quaternion.identity, this.transform);
-                    // Define o nome da célula para facilitar a identificação
                     cell.name = $"Grid Cell ({x}, {y})";
                 }
 
                 // 2. Popula com monstros e paredes do LevelData
-                // Mapeia a linha do inspector (de cima para baixo) para a linha do grid (de baixo para cima)
                 int linhaDoLayout = (gridHeight - 1) - y;
-                // Verifica se a linha existe no layout do grid
+                if (nivelAtual.layoutDoGrid.Count <= linhaDoLayout || nivelAtual.layoutDoGrid[linhaDoLayout].colunas == null || nivelAtual.layoutDoGrid[linhaDoLayout].colunas.Count <= x)
+                    continue; // Evita NullReference
                 LevelData.TileConfig tile = nivelAtual.layoutDoGrid[linhaDoLayout].colunas[x];
                 GameObject prefabParaInstanciar = null;
-                // Determina qual prefab instanciar com base no tipo de tile
                 switch (tile.tipo)
                 {
                     case LevelData.TipoDeTile.Monstro:
-                        prefabParaInstanciar = monstroPrefab;
+                        if (tile.escondido)
+                        {
+                            prefabParaInstanciar = prefabCaixa;
+                            break;
+                        }
+                        if (monstroPrefab != null && tile.corDoMonstro >= 0 && tile.corDoMonstro < monstroPrefab.Count && monstroPrefab[tile.corDoMonstro] != null)
+                        {
+                            prefabParaInstanciar = monstroPrefab[tile.corDoMonstro];
+                        }
                         break;
                     case LevelData.TipoDeTile.Parede:
                         prefabParaInstanciar = paredePrefab;
                         break;
+                    case LevelData.TipoDeTile.Gerador:
+                        prefabParaInstanciar = prefabGerador;
+                        break;
                 }
-                // Se o prefab não for nulo, instancia o monstro ou parede
                 if (prefabParaInstanciar != null)
                 {
-                    // Instancia o prefab na posição correta
                     GameObject obj = Instantiate(prefabParaInstanciar, new Vector3(x, y, 0), Quaternion.identity, this.transform);
-                    // Define o nome do objeto para facilitar a identificação
                     obj.name = $"{tile.tipo} ({x}, {y})";
-                    // Adiciona o componente Monstro ao objeto
+                    if (tile.tipo == LevelData.TipoDeTile.Gerador)
+                    {
+                        GeradorDeMonstros geradorComponent = obj.GetComponent<GeradorDeMonstros>();
+                        if (geradorComponent != null)
+                        {
+                            geradorComponent.monstrosParaGerar = tile.MonstrosASeremGeradosPeloGerador;
+                        }
+                    }
                     Monstro monstroComponent = obj.GetComponent<Monstro>();
-                    
-                    monstroComponent.posicaoGrid = new Tuple<int, int>(x, y);
-                    monstroComponent.vazio = (tile.tipo == LevelData.TipoDeTile.Vazio);
-
-                    if(tile.tipo == LevelData.TipoDeTile.Monstro)
+                    if (monstroComponent != null)
                     {
-                        monstroComponent.cor = tile.corDoMonstro;
+                        monstroComponent.posicaoGrid = new Tuple<int, int>(x, y);
+                        monstroComponent.vazio = (tile.tipo == LevelData.TipoDeTile.Vazio);
+                        monstroComponent.escondido = tile.escondido;
+                        if(tile.tipo == LevelData.TipoDeTile.Monstro)
+                        {
+                            monstroComponent.cor = tile.corDoMonstro;
+                        }
+                        if(tile.tipo == LevelData.TipoDeTile.Parede)
+                        {
+                            monstroComponent.cor = -1;
+                        }
+                        Monstros[x][y] = monstroComponent;
                     }
-                    if(tile.tipo == LevelData.TipoDeTile.Parede)
-                    {
-                        monstroComponent.cor = -1; // Definindo cor como -1 para paredes
-                    }
-
-                    Monstros[x][y] = monstroComponent;
                 }
             }
         }
@@ -121,6 +139,15 @@ public class GridController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Atualiza o tempo restante
+
+
+        if (MaximoDeSegundos > 0 && tempoRestanteText != null)
+        {
+            MaximoDeSegundos -= Time.deltaTime;
+            if (MaximoDeSegundos < 0) MaximoDeSegundos = 0;
+            tempoRestanteText.text = $"{MaximoDeSegundos.ToString("F2")}";
+        }
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -130,21 +157,24 @@ public class GridController : MonoBehaviour
             {
                 Debug.Log($"Clicou no objeto: {hit.collider.name}");
                 Monstro monstroClicado = hit.collider.GetComponent<Monstro>();
+                GameObject objetoClicado = hit.collider.gameObject;
                 Debug.Log($"Clicou no monstro: {monstroClicado?.name}");
                 if (monstroClicado == null) return;
                 if (monstroClicado.vazio) return; // Ignora células vazias
                 if (monstroClicado.cor == -1) return; // Ignora paredes
+                
                 // Usa a referência da parte principal para garantir que estamos movendo o monstro certo
-                Monstro monstroPrincipal = monstroClicado;
-                bool podeRemover = PodeRemover(monstroPrincipal);
+                bool podeRemover = PodeRemover(monstroClicado);
                 Debug.Log($"Pode remover: {podeRemover}");
                 if ( podeRemover && Armazem.Count < maxArmazem)
                 {
-                    AdicionarAoArmazem(monstroPrincipal);
-                    RemoverDoGrid(monstroPrincipal);
+
+                    AdicionarAoArmazem(monstroClicado);
+                    RemoverDoGrid(monstroClicado);
                 }
             }
         }
+
     }
     
     // ... (restante do código: PodeRemover, RemoverDoGrid, AdicionarAoArmazem, ChecarEEliminarGrupos) ...
@@ -191,10 +221,26 @@ public class GridController : MonoBehaviour
                     var proximaCelula = Monstros[nx][ny];
                     if ((proximaCelula == null || proximaCelula.vazio) && proximaCelula?.cor != -1 )
                     {
+                        
                         visitados.Add(proximaPos);
                         fila.Enqueue(proximaPos);
                     }
+                    if (proximaCelula is not null && proximaCelula.escondido)
+                    {
+                        GameObject ElementoDoMonstro = proximaCelula.gameObject;
+                        // Revela o monstro escondido
+                        Destroy(ElementoDoMonstro); // Remove a caixa
+                        GameObject monstroRevelado = Instantiate(monstroPrefab[proximaCelula.cor], proximaCelula.transform.position, Quaternion.identity, this.transform);
+                        monstroRevelado.name = $"Monstro Revelado ({proximaCelula.cor})";
+                        Monstro novoMonstro = monstroRevelado.GetComponent<Monstro>();
+                        novoMonstro.posicaoGrid = proximaCelula.posicaoGrid;
+                        novoMonstro.vazio = false;
+                        novoMonstro.escondido = false; // Marca como revelado
+                        novoMonstro.cor = proximaCelula.cor; // Mantém a cor do monstro
+                        Monstros[proximaCelula.posicaoGrid.Item1][proximaCelula.posicaoGrid.Item2] = novoMonstro;
+                    }
                 }
+
             }
         }
         return false;

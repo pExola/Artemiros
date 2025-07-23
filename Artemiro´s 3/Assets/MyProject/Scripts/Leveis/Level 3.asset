@@ -14,8 +14,77 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layoutDoGrid:
   - colunas:
+    - tipo: 1
+      corDoMonstro: 1
+    - tipo: 1
+      corDoMonstro: 1
+    - tipo: 2
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 3
+    - tipo: 1
+      corDoMonstro: 3
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 1
+    - tipo: 2
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 1
+    - tipo: 1
+      corDoMonstro: 1
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 0
+    - tipo: 2
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 3
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 2
+    - tipo: 1
+      corDoMonstro: 2
+    - tipo: 1
+      corDoMonstro: 2
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
     - tipo: 0
       corDoMonstro: 0
   TamanhoInventario: 7
   BisCoords: []
-  TrisCoords: []
+  TrisCoords:
+  - x1: 2
+    y1: 3
+    x2: 3
+    y2: 3
+    x3: 4
+    y3: 3

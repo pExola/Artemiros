@@ -12,4 +12,81 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61ada8e8fe510ec4f81fb8666651ae72, type: 3}
   m_Name: Level 2
   m_EditorClassIdentifier: 
-  layoutDoGrid: []
+  layoutDoGrid:
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 2
+    - tipo: 1
+      corDoMonstro: 2
+    - tipo: 1
+      corDoMonstro: 3
+    - tipo: 2
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 3
+    - tipo: 1
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 1
+    - tipo: 1
+      corDoMonstro: 1
+    - tipo: 0
+      corDoMonstro: 0
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 2
+    - tipo: 1
+      corDoMonstro: 3
+    - tipo: 1
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 1
+    - tipo: 0
+      corDoMonstro: 0
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+    - tipo: 0
+      corDoMonstro: 0
+  TamanhoInventario: 7
+  BisCoords:
+  - x1: 0
+    y1: 0
+    x2: 1
+    y2: 0
+  - x1: 2
+    y1: 1
+    x2: 3
+    y2: 1
+  TrisCoords: []
