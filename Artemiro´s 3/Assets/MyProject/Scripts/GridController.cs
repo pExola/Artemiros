@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.VisualScripting;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class GridController : MonoBehaviour
 {
@@ -33,10 +35,17 @@ public class GridController : MonoBehaviour
     public List<Monstro> Armazem = new List<Monstro>();
     private int maxArmazem = 7;
 
+    [Header("Configuração da UI do Tabuleiro")]
+    public RectTransform boardContainer; // Arraste o seu objeto BoardContainer aqui pelo Inspector
+
+    [Header("Referências para o Raycast da UI")]
+    public GraphicRaycaster graphicRaycaster; // Arraste aqui o componente do seu Canvas
+    public EventSystem eventSystem;           // Arraste aqui o objeto EventSystem da sua cena
+
     // Use this for initialization
     void Start()
     {
-        InicializarGrid();
+        StartCoroutine(InicializarGridAposLayout());
     }
 
     void InicializarGrid()
@@ -47,54 +56,93 @@ public class GridController : MonoBehaviour
             return;
         }
 
-        // Define a largura e altura do grid com base no layout do nível
-        gridHeight = nivelAtual.layoutDoGrid.Count;
-        gridWidth = (gridHeight > 0) ? nivelAtual.layoutDoGrid[0].colunas.Count : 0;
-        maxArmazem = nivelAtual.TamanhoInventario;
-        // Limpa o grid antigo, se houver
-        foreach (Transform child in transform)
+        if (boardContainer == null)
+        {
+            Debug.LogError("O BoardContainer não foi atribuído no GridController!");
+            return;
+        }
+
+        // Limpa o tabuleiro de qualquer execução anterior
+        foreach (Transform child in boardContainer)
         {
             Destroy(child.gameObject);
         }
-        // Limpa o armazém
+
+        // Define as dimensões lógicas do grid
+        gridHeight = nivelAtual.layoutDoGrid.Count;
+        gridWidth = (gridHeight > 0) ? nivelAtual.layoutDoGrid[0].colunas.Count : 0;
+        maxArmazem = nivelAtual.TamanhoInventario;
+
+        // Inicializa a matriz de dados que guarda o estado do jogo
         Monstros = new List<List<Monstro>>();
-        for (int x = 0; x < gridWidth; x++)
+        for (int i = 0; i < gridWidth; i++)
         {
-            // Inicializa cada coluna com uma lista de monstros vazia
             Monstros.Add(new List<Monstro>(new Monstro[gridHeight]));
         }
 
-        // A iteração agora é invertida para que o layout no Inspector (de cima para baixo)
-        // corresponda ao grid no jogo (de baixo para cima).
+        // --- Início do Cálculo de Layout Responsivo ---
+
+        // 1. Pega as dimensões do container da UI. Ex: 1000px de largura, 800px de altura.
+        float containerWidth = boardContainer.rect.width;
+        float containerHeight = boardContainer.rect.height;
+
+        // 2. Calcula a largura e altura MÁXIMA que uma célula poderia ter.
+        // Ex: Se o grid é 10x10 em um container 1000x800, cellWidth = 100, cellHeight = 80.
+        float cellWidth = containerWidth / gridWidth;
+        float cellHeight = containerHeight / gridHeight;
+
+        // 3. Pega o MENOR desses dois valores. Isso GARANTE que a célula será um QUADRADO.
+        // No nosso exemplo, cellSize = Mathf.Min(100, 80) => 80.
+        float cellSize = Mathf.Min(cellWidth, cellHeight);
+
+        // 4. Calcula a área total que o nosso grid de células quadradas irá ocupar.
+        // Ex: totalGridWidth = 80 * 10 = 800. totalGridHeight = 80 * 10 = 800.
+        float totalGridWidth = cellSize * gridWidth;
+        float totalGridHeight = cellSize * gridHeight;
+
+        // 5. Calcula a posição inicial para CENTRALIZAR o grid.
+        // Para um pivô central (0.5, 0.5), o cálculo nos dá a coordenada do centro da primeira célula (canto inferior esquerdo).
+        // Ex: startX = -(800 / 2) + (80 / 2) = -400 + 40 = -360.
+        float startX = -(totalGridWidth / 2) + (cellSize / 2);
+        float startY = -(totalGridHeight / 2) + (cellSize / 2);
+
+        // --- Início da Construção Visual do Grid ---
         for (int y = 0; y < gridHeight; y++)
         {
             for (int x = 0; x < gridWidth; x++)
             {
-                // 1. Desenha a célula de fundo
+                // Calcula a posição do centro da célula atual
+                float posX = startX + x * cellSize;
+                float posY = startY + y * cellSize;
+
+                int linhaDoLayout = (gridHeight - 1) - y;
+                LevelData.TileConfig tile = nivelAtual.layoutDoGrid[linhaDoLayout].colunas[x];
+
+                // Instancia e posiciona a célula de fundo (opcional)
                 if (gridCellPrefab != null)
                 {
-                    GameObject cell = Instantiate(gridCellPrefab, new Vector3(x, y, 1), Quaternion.identity, this.transform);
+                    GameObject cell = Instantiate(gridCellPrefab, boardContainer);
                     cell.name = $"Grid Cell ({x}, {y})";
+                    RectTransform cellRect = cell.GetComponent<RectTransform>();
+                    if (cellRect != null)
+                    {
+                        // Usa o cellSize para garantir que a célula de fundo também seja quadrada
+                        cellRect.sizeDelta = new Vector2(cellSize, cellSize);
+                        cellRect.anchoredPosition = new Vector2(posX, posY);
+                    }
                 }
 
-                // 2. Popula com monstros e paredes do LevelData
-                int linhaDoLayout = (gridHeight - 1) - y;
-                if (nivelAtual.layoutDoGrid.Count <= linhaDoLayout || nivelAtual.layoutDoGrid[linhaDoLayout].colunas == null || nivelAtual.layoutDoGrid[linhaDoLayout].colunas.Count <= x)
-                    continue; // Evita NullReference
-                LevelData.TileConfig tile = nivelAtual.layoutDoGrid[linhaDoLayout].colunas[x];
+                if (tile.tipo == LevelData.TipoDeTile.Vazio)
+                {
+                    continue;
+                }
+
+                // Lógica para escolher o prefab a ser instanciado
                 GameObject prefabParaInstanciar = null;
                 switch (tile.tipo)
                 {
                     case LevelData.TipoDeTile.Monstro:
-                        if (tile.escondido)
-                        {
-                            prefabParaInstanciar = prefabCaixa;
-                            break;
-                        }
-                        if (monstroPrefab != null && tile.corDoMonstro >= 0 && tile.corDoMonstro < monstroPrefab.Count && monstroPrefab[tile.corDoMonstro] != null)
-                        {
-                            prefabParaInstanciar = monstroPrefab[tile.corDoMonstro];
-                        }
+                        prefabParaInstanciar = tile.escondido ? prefabCaixa : monstroPrefab[tile.corDoMonstro];
                         break;
                     case LevelData.TipoDeTile.Parede:
                         prefabParaInstanciar = paredePrefab;
@@ -103,37 +151,50 @@ public class GridController : MonoBehaviour
                         prefabParaInstanciar = prefabGerador;
                         break;
                 }
+
                 if (prefabParaInstanciar != null)
                 {
-                    GameObject obj = Instantiate(prefabParaInstanciar, new Vector3(x, y, 0), Quaternion.identity, this.transform);
+                    GameObject obj = Instantiate(prefabParaInstanciar, boardContainer);
                     obj.name = $"{tile.tipo} ({x}, {y})";
-                    if (tile.tipo == LevelData.TipoDeTile.Gerador)
+
+                    RectTransform objRect = obj.GetComponent<RectTransform>();
+                    if (objRect != null)
                     {
-                        GeradorDeMonstros geradorComponent = obj.GetComponent<GeradorDeMonstros>();
-                        if (geradorComponent != null)
-                        {
-                            geradorComponent.monstrosParaGerar = tile.MonstrosASeremGeradosPeloGerador;
-                        }
+                        // Define o tamanho da peça para ser um quadrado, com um pequeno respiro visual
+                        objRect.sizeDelta = new Vector2(cellSize * 0.95f, cellSize * 0.95f);
+                        objRect.anchoredPosition = new Vector2(posX, posY);
                     }
+
+                    // Configura o componente Monstro com os dados do nível
                     Monstro monstroComponent = obj.GetComponent<Monstro>();
                     if (monstroComponent != null)
                     {
                         monstroComponent.posicaoGrid = new Tuple<int, int>(x, y);
-                        monstroComponent.vazio = (tile.tipo == LevelData.TipoDeTile.Vazio);
                         monstroComponent.escondido = tile.escondido;
-                        if(tile.tipo == LevelData.TipoDeTile.Monstro)
+                        monstroComponent.cor = (tile.tipo == LevelData.TipoDeTile.Parede) ? -1 : tile.corDoMonstro;
+                        monstroComponent.gridController = this;
+
+                        if (tile.tipo == LevelData.TipoDeTile.Gerador && obj.TryGetComponent(out GeradorDeMonstros geradorComponent))
                         {
-                            monstroComponent.cor = tile.corDoMonstro;
+                            geradorComponent.monstrosParaGerar = tile.MonstrosASeremGeradosPeloGerador;
                         }
-                        if(tile.tipo == LevelData.TipoDeTile.Parede)
-                        {
-                            monstroComponent.cor = -1;
-                        }
+
                         Monstros[x][y] = monstroComponent;
                     }
                 }
             }
         }
+    }
+
+    IEnumerator InicializarGridAposLayout()
+    {
+        // Espera até o final do frame atual. Neste ponto, todos os cálculos
+        // de layout da UI para este frame já foram concluídos.
+        yield return new WaitForEndOfFrame();
+
+        // Agora que temos certeza que o container tem seu tamanho final,
+        // podemos chamar nosso método de inicialização com segurança.
+        InicializarGrid();
     }
 
     // Update is called once per frame
@@ -150,35 +211,54 @@ public class GridController : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(0))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+            PointerEventData pointerEventData = new PointerEventData(eventSystem);
+            pointerEventData.position = Input.mousePosition;
+            List<RaycastResult> results = new List<RaycastResult>();
+            graphicRaycaster.Raycast(pointerEventData, results);
 
-            if (hit.collider != null)
+            if (results.Count > 0)
             {
-                Debug.Log($"Clicou no objeto: {hit.collider.name}");
-                Monstro monstroClicado = hit.collider.GetComponent<Monstro>();
-                GameObject objetoClicado = hit.collider.gameObject;
-                Debug.Log($"Clicou no monstro: {monstroClicado?.name}");
-                if (monstroClicado == null) return;
-                if (monstroClicado.vazio) return; // Ignora células vazias
-                if (monstroClicado.cor == -1) return; // Ignora paredes
-                
-                // Usa a referência da parte principal para garantir que estamos movendo o monstro certo
-                bool podeRemover = PodeRemover(monstroClicado);
-                Debug.Log($"Pode remover: {podeRemover}");
-                if ( podeRemover && Armazem.Count < maxArmazem)
-                {
+                // --- INÍCIO DA CORREÇÃO ---
+                // Procura o componente no objeto clicado E NOS SEUS PAIS.
+                Monstro monstroClicado = results[0].gameObject.GetComponentInParent<Monstro>();
+                // --- FIM DA CORREÇÃO ---
 
-                    AdicionarAoArmazem(monstroClicado);
-                    RemoverDoGrid(monstroClicado);
+                // Agora, a verificação 'if (monstroClicado != null)' vai funcionar corretamente.
+                if (monstroClicado != null)
+                {
+                    Debug.Log($"Clicou no objeto da UI: {monstroClicado.gameObject.name}");
+
+                    if (monstroClicado.vazio) return;
+                    if (monstroClicado.cor == -1) return;
+
+                    bool podeRemover = PodeRemover(monstroClicado);
+                    Debug.Log($"Pode remover: {podeRemover}");
+                    if (podeRemover && Armazem.Count < maxArmazem)
+                    {
+                        AdicionarAoArmazem(monstroClicado);
+                        RemoverDoGrid(monstroClicado);
+                    }
+
                 }
             }
         }
-
     }
-    
-    // ... (restante do código: PodeRemover, RemoverDoGrid, AdicionarAoArmazem, ChecarEEliminarGrupos) ...
-    // O código abaixo permanece o mesmo, mas o refatorei para clareza e para usar a nova estrutura do Monstro.cs
+
+    public void ProcessarCliqueNoMonstro(Monstro monstroClicado)
+    {
+        if (monstroClicado == null) return;
+        if (monstroClicado.vazio) return; // Ignora células vazias
+        if (monstroClicado.cor == -1) return; // Ignora paredes
+
+        // Esta é a mesma lógica que estava dentro do seu Update()
+        bool podeRemover = PodeRemover(monstroClicado);
+        Debug.Log($"Pode remover: {podeRemover}");
+        if (podeRemover && Armazem.Count < maxArmazem)
+        {
+            AdicionarAoArmazem(monstroClicado);
+            RemoverDoGrid(monstroClicado); // Você precisará adaptar esta função
+        }
+    }
 
     bool PodeRemover(Monstro monstro)
     {
@@ -330,4 +410,117 @@ public class GridController : MonoBehaviour
             }
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (nivelAtual == null || nivelAtual.layoutDoGrid == null)
+        {
+            return; // Não faz nada se não houver um nível carregado
+        }
+
+        int gridHeight = nivelAtual.layoutDoGrid.Count;
+        if (gridHeight == 0) return;
+        int gridWidth = nivelAtual.layoutDoGrid[0].colunas.Count;
+
+        for (int y = 0; y < gridHeight; y++)
+        {
+            for (int x = 0; x < gridWidth; x++)
+            {
+                int linhaDoLayout = (gridHeight - 1) - y;
+                LevelData.TileConfig tile = nivelAtual.layoutDoGrid[linhaDoLayout].colunas[x];
+
+                Vector3 position = new Vector3(x, y, 0);
+
+                // Define a cor do Gizmo com base no tipo de tile
+                switch (tile.tipo)
+                {
+                    case LevelData.TipoDeTile.Monstro:
+                        // Usaremos cores diferentes para cada monstro para fácil visualização
+                        Gizmos.color = GetColorForGizmo(tile.corDoMonstro);
+                        if (tile.escondido)
+                        {
+                            // Desenha um cubo sólido para caixas
+                            Gizmos.DrawCube(position, Vector3.one * 0.9f);
+                        }
+                        else
+                        {
+                            // Desenha uma esfera para monstros visíveis
+                            Gizmos.DrawSphere(position, 0.45f);
+                        }
+                        break;
+
+                    case LevelData.TipoDeTile.Parede:
+                        Gizmos.color = Color.gray;
+                        Gizmos.DrawCube(position, Vector3.one);
+                        break;
+
+                    case LevelData.TipoDeTile.Gerador:
+                        Gizmos.color = Color.magenta;
+                        Gizmos.DrawCube(position, Vector3.one * 0.8f);
+                        break;
+
+                    case LevelData.TipoDeTile.Vazio:
+                        Gizmos.color = new Color(1, 1, 1, 0.2f); // Quase transparente
+                        Gizmos.DrawWireCube(position, Vector3.one * 0.9f);
+                        break;
+                }
+            }
+        }
+    }
+
+    // Função auxiliar para obter cores diferentes para os monstros
+    private Color GetColorForGizmo(int corIndex)
+    {
+        switch (corIndex % 6) // Usa módulo para ciclar entre 6 cores
+        {
+            case 0: return Color.red;
+            case 1: return Color.green;
+            case 2: return Color.blue;
+            case 3: return Color.yellow;
+            case 4: return Color.cyan;
+            case 5: return Color.white;
+            default: return Color.black;
+        }
+    }
+#endif
+
+    void AjustarCameraParaOGrid()
+    {
+        if (nivelAtual == null) return;
+
+        int gridHeight = nivelAtual.layoutDoGrid.Count;
+        int gridWidth = (gridHeight > 0) ? nivelAtual.layoutDoGrid[0].colunas.Count : 0;
+
+        if (gridWidth == 0 || gridHeight == 0) return;
+
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null || !mainCamera.orthographic)
+        {
+            Debug.LogWarning("Câmera principal não encontrada ou não é ortográfica.");
+            return;
+        }
+
+        // Calcula o centro do grid
+        float centerX = (float)(gridWidth - 1) / 2.0f;
+        float centerY = (float)(gridHeight - 1) / 2.0f;
+        mainCamera.transform.position = new Vector3(centerX, centerY, mainCamera.transform.position.z);
+
+        // Ajusta o zoom da câmera
+        float screenRatio = (float)Screen.width / (float)Screen.height;
+        float gridRatio = (float)gridWidth / (float)gridHeight;
+
+        if (screenRatio >= gridRatio)
+        {
+            // A tela é mais larga que o grid, então a altura define o zoom
+            mainCamera.orthographicSize = (float)gridHeight / 2.0f + 1.0f; // +1 de padding
+        }
+        else
+        {
+            // O grid é mais largo que a tela, então a largura define o zoom
+            float newSize = ((float)gridWidth / 2.0f) / screenRatio + 1.0f; // +1 de padding
+            mainCamera.orthographicSize = newSize;
+        }
+    }
+
 }

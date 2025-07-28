@@ -52,8 +52,28 @@ PrefabInstance:
       propertyPath: m_Name
       value: GridCell Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 5405892396587614471, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4989441650701787126, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3347253877609567492}
   m_SourcePrefab: {fileID: 100100000, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
+--- !u!1 &3062118415134404450 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4989441650701787126, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
+  m_PrefabInstance: {fileID: 8016647883004244116}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &3347253877609567492
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3062118415134404450}
+  m_CullTransparentMesh: 1

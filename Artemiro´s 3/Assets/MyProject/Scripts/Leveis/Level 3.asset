@@ -16,71 +16,135 @@ MonoBehaviour:
   - colunas:
     - tipo: 1
       corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 2
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 3
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 3
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   - colunas:
     - tipo: 1
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 2
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   - colunas:
     - tipo: 1
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 2
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 0
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 3
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   - colunas:
     - tipo: 0
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 0
       corDoMonstro: 0
-    - tipo: 1
-      corDoMonstro: 2
-    - tipo: 1
-      corDoMonstro: 2
-    - tipo: 1
-      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   - colunas:
     - tipo: 0
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 0
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 0
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 0
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
     - tipo: 0
       corDoMonstro: 0
-  - colunas:
-    - tipo: 0
-      corDoMonstro: 0
-    - tipo: 0
-      corDoMonstro: 0
-    - tipo: 0
-      corDoMonstro: 0
-    - tipo: 0
-      corDoMonstro: 0
-    - tipo: 0
-      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   TamanhoInventario: 7
-  BisCoords: []
+  BisCoords:
+  - x1: 0
+    y1: 0
+    x2: 0
+    y2: 0
   TrisCoords:
   - x1: 2
     y1: 3
@@ -88,3 +152,9 @@ MonoBehaviour:
     y2: 3
     x3: 4
     y3: 3
+  - x1: 0
+    y1: 0
+    x2: 0
+    y2: 0
+    x3: 0
+    y3: 0
