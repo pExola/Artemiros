@@ -12,12 +12,15 @@ public class GridController : MonoBehaviour
 {
     [Header("Configuração do Nível")]
     public LevelData nivelAtual;
-    public float MaximoDeSegundos = 60; // Tempo máximo para completar o nível, em segundos
-    public TMPro.TMP_Text tempoRestanteText; // Arraste aqui o componente TextMeshPro para mostrar o tempo restante
+    public float tempoInicialDoNivel = 60f;
+    private float tempoRestante;
 
     [Header("Configuração do Grid")]
     private int gridWidth;
     private int gridHeight;
+
+    [Header("UI do Relógio")]
+    public RelogioUIController relogioVisual;
 
     [Header("Prefabs")]
     public GameObject gridCellPrefab; // Arraste aqui o Prefab da célula de fundo
@@ -45,6 +48,7 @@ public class GridController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        tempoRestante = tempoInicialDoNivel;
         StartCoroutine(InicializarGridAposLayout());
     }
 
@@ -203,11 +207,15 @@ public class GridController : MonoBehaviour
         // Atualiza o tempo restante
 
 
-        if (MaximoDeSegundos > 0 && tempoRestanteText != null)
+        if (tempoRestante > 0)
         {
-            MaximoDeSegundos -= Time.deltaTime;
-            if (MaximoDeSegundos < 0) MaximoDeSegundos = 0;
-            tempoRestanteText.text = $"{MaximoDeSegundos.ToString("F2")}";
+            tempoRestante -= Time.deltaTime;
+
+            // ATUALIZA O RELÓGIO VISUAL (a nova linha)
+            if (relogioVisual != null)
+            {
+                relogioVisual.AtualizarDisplay(tempoRestante, tempoInicialDoNivel);
+            }
         }
         if (Input.GetMouseButtonDown(0))
         {

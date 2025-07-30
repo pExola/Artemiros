@@ -18,32 +18,32 @@ MonoBehaviour:
       corDoMonstro: 2
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 1
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
   - colunas:
@@ -51,31 +51,31 @@ MonoBehaviour:
       corDoMonstro: 1
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
+      corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
+      corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 1
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
@@ -84,32 +84,32 @@ MonoBehaviour:
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
+      corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
+      corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
+    - tipo: 1
+      corDoMonstro: 1
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
   - colunas:
@@ -117,31 +117,31 @@ MonoBehaviour:
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 2
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 0
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
