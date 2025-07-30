@@ -55,6 +55,7 @@ MonoBehaviour:
   tipo: 0
   vazio: 0
   escondido: 0
+  gridController: {fileID: 0}
   segundaParte: {fileID: 0}
   terceiraParte: {fileID: 0}
 --- !u!61 &2668460001610030172
@@ -124,14 +125,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.46839362, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6420744333955152556, guid: 37e9dd07191a4a844b3901e99abaa47b, type: 3}
+  m_Sprite: {fileID: -2413806693520163455, guid: ebb0dfdd82820ab41b66ac80ed60ffec, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

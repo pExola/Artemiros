@@ -206,7 +206,6 @@ public class GridController : MonoBehaviour
     {
         // Atualiza o tempo restante
 
-
         if (tempoRestante > 0)
         {
             tempoRestante -= Time.deltaTime;
@@ -420,17 +419,46 @@ public class GridController : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
-        if (nivelAtual == null || nivelAtual.layoutDoGrid == null)
+        if (nivelAtual == null || nivelAtual.layoutDoGrid == null || boardContainer == null)
         {
-            return; // Não faz nada se não houver um nível carregado
+            return;
         }
 
+        // 1. Obter os 4 cantos do container no espaço do mundo.
+        Vector3[] corners = new Vector3[4];
+        boardContainer.GetWorldCorners(corners);
+
+        // 2. Calcular a largura e altura do container no espaço do mundo.
+        float containerWorldWidth = Vector3.Distance(corners[0], corners[3]);
+        float containerWorldHeight = Vector3.Distance(corners[0], corners[1]);
+
+        // 3. Desenhar a borda do container para referência visual.
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(corners[0], corners[1]); // Borda Esquerda
+        Gizmos.DrawLine(corners[1], corners[2]); // Borda Superior
+        Gizmos.DrawLine(corners[2], corners[3]); // Borda Direita
+        Gizmos.DrawLine(corners[3], corners[0]); // Borda Inferior
+
+        // 4. Reutilizar a mesma lógica de cálculo de InicializarGrid.
         int gridHeight = nivelAtual.layoutDoGrid.Count;
         if (gridHeight == 0) return;
         int gridWidth = nivelAtual.layoutDoGrid[0].colunas.Count;
+        if (gridWidth == 0) return;
 
+        float cellWidthPotential = containerWorldWidth / gridWidth;
+        float cellHeightPotential = containerWorldHeight / gridHeight;
+        float cellSize = Mathf.Min(cellWidthPotential, cellHeightPotential);
+
+        float totalGridWidth = cellSize * gridWidth;
+        float totalGridHeight = cellSize * gridHeight;
+
+        Vector3 containerCenter = corners[0] + new Vector3(containerWorldWidth / 2, containerWorldHeight / 2, 0);
+        float startX = containerCenter.x - (totalGridWidth / 2) + (cellSize / 2);
+        float startY = containerCenter.y - (totalGridHeight / 2) + (cellSize / 2);
+
+        // 5. Desenhar o gizmo de cada célula.
         for (int y = 0; y < gridHeight; y++)
         {
             for (int x = 0; x < gridWidth; x++)
@@ -438,39 +466,40 @@ public class GridController : MonoBehaviour
                 int linhaDoLayout = (gridHeight - 1) - y;
                 LevelData.TileConfig tile = nivelAtual.layoutDoGrid[linhaDoLayout].colunas[x];
 
-                Vector3 position = new Vector3(x, y, 0);
+                float posX = startX + x * cellSize;
+                float posY = startY + y * cellSize;
+                Vector3 position = new Vector3(posX, posY, containerCenter.z);
 
-                // Define a cor do Gizmo com base no tipo de tile
+                // --- NOVO: DESENHA A CÉLULA DE FUNDO PARA TODOS ---
+                Gizmos.color = new Color(1, 1, 1, 0.1f); // Cor cinza bem fraca
+                Gizmos.DrawWireCube(position, new Vector3(cellSize, cellSize, 0.01f));
+
+                float gizmoSize = cellSize * 0.9f;
+
                 switch (tile.tipo)
                 {
                     case LevelData.TipoDeTile.Monstro:
-                        // Usaremos cores diferentes para cada monstro para fácil visualização
                         Gizmos.color = GetColorForGizmo(tile.corDoMonstro);
                         if (tile.escondido)
                         {
-                            // Desenha um cubo sólido para caixas
-                            Gizmos.DrawCube(position, Vector3.one * 0.9f);
+                            Gizmos.DrawCube(position, new Vector3(gizmoSize, gizmoSize, gizmoSize));
                         }
                         else
                         {
-                            // Desenha uma esfera para monstros visíveis
-                            Gizmos.DrawSphere(position, 0.45f);
+                            Gizmos.DrawSphere(position, gizmoSize / 2);
                         }
                         break;
 
+                    // --- NOVO: DESENHA A PAREDE ---
                     case LevelData.TipoDeTile.Parede:
                         Gizmos.color = Color.gray;
-                        Gizmos.DrawCube(position, Vector3.one);
+                        Gizmos.DrawCube(position, new Vector3(gizmoSize, gizmoSize, gizmoSize));
                         break;
 
+                    // --- NOVO: DESENHA O GERADOR ---
                     case LevelData.TipoDeTile.Gerador:
                         Gizmos.color = Color.magenta;
-                        Gizmos.DrawCube(position, Vector3.one * 0.8f);
-                        break;
-
-                    case LevelData.TipoDeTile.Vazio:
-                        Gizmos.color = new Color(1, 1, 1, 0.2f); // Quase transparente
-                        Gizmos.DrawWireCube(position, Vector3.one * 0.9f);
+                        Gizmos.DrawCube(position, new Vector3(gizmoSize * 0.8f, gizmoSize * 0.8f, gizmoSize * 0.8f));
                         break;
                 }
             }

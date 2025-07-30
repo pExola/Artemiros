@@ -151,8 +151,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -460, y: -500}
+  m_AnchoredPosition: {x: 0, y: -20}
+  m_SizeDelta: {x: -600, y: -460}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &98815070
 GameObject:
@@ -189,8 +189,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.51}
   m_AnchorMax: {x: 1, y: 0.44}
-  m_AnchoredPosition: {x: 0, y: -260}
-  m_SizeDelta: {x: -600, y: 120}
+  m_AnchoredPosition: {x: 15, y: -212}
+  m_SizeDelta: {x: -790, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &98815073
 MonoBehaviour:
@@ -250,7 +250,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 60, y: 60}
+  m_CellSize: {x: 40, y: 40}
   m_Spacing: {x: 20, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -516,14 +516,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1589914923298429795, guid: b31153e9d5274844db17dfdff9e6f027, type: 3}
+  m_Sprite: {fileID: -2413806693520163455, guid: ebb0dfdd82820ab41b66ac80ed60ffec, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -842,16 +842,20 @@ MonoBehaviour:
   - {fileID: 4989441650701787126, guid: 375fb4b56df58504ab9d1682a53242fe, type: 3}
   - {fileID: 4989441650701787126, guid: e8c100a13c1c89e478c45261355f407a, type: 3}
   - {fileID: 4989441650701787126, guid: 5ea8a269e53863547af85716e3278745, type: 3}
+  - {fileID: 4989441650701787126, guid: e2b645f57975f9248838d45f12dd4048, type: 3}
+  - {fileID: 4989441650701787126, guid: 74e0b0ca260edd94fa587827acb01e06, type: 3}
   paredePrefab: {fileID: 4989441650701787126, guid: 39dc9a00babb2bd47889fc62c25a2254, type: 3}
   prefabCaixa: {fileID: 0}
   prefabGerador: {fileID: 0}
   armazemUIParent: {fileID: 98815071}
   monstroIconPrefab: {fileID: 3389938260265846616, guid: ac465bde4fe1f244a80b2903da740086, type: 3}
   monstroSprites:
-  - {fileID: -2413806693520163455, guid: da28b33958713fe45b7bc1f5c47d0f7b, type: 3}
-  - {fileID: -1589914923298429795, guid: b31153e9d5274844db17dfdff9e6f027, type: 3}
-  - {fileID: -3907158944702478881, guid: 22ecc160a7e909748ab64424a83587dc, type: 3}
-  - {fileID: 6420744333955152556, guid: 37e9dd07191a4a844b3901e99abaa47b, type: 3}
+  - {fileID: -6690080209013966528, guid: baf2e096b1f071d48a96de016b9a13c8, type: 3}
+  - {fileID: -1140220150309726818, guid: 6b1e8da7672618f448b49c346c2c123b, type: 3}
+  - {fileID: -6410214552901608049, guid: cfdba3340fb2fa4459d81ae81f664555, type: 3}
+  - {fileID: -6695447764876569476, guid: 1c07f09983e95dc418c394f159880356, type: 3}
+  - {fileID: 750323416598709284, guid: 609573f988a291b42b515aea02516443, type: 3}
+  - {fileID: 5617714613270530683, guid: a6b82fe00f6cc0545afeb6be7ae5efde, type: 3}
   Armazem: []
   boardContainer: {fileID: 42430238}
   graphicRaycaster: {fileID: 826320831}

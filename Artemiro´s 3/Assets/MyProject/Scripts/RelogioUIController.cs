@@ -32,7 +32,6 @@ public class RelogioUIController : MonoBehaviour
     {
         if (imagemDoRelogio == null || tempoMaximo <= 0) return;
 
-        // --- Lógica de Preenchimento (Fill) - Continua a mesma ---
         float fillAmount = tempoAtual / tempoMaximo;
         imagemDoRelogio.fillAmount = fillAmount;
 
