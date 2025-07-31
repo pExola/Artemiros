@@ -5,9 +5,21 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyProject/Scenes/GameTEST.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/MyProject/Scenes/Menu.unity
+    guid: 4ffbdf1428d9047469e7bfa0b5e88279
+  - enabled: 1
+    path: Assets/MyProject/Scenes/Fase Selec.unity
+    guid: 1eba5a9570af1414998f7b25bc5e7fb2
+  - enabled: 1
+    path: Assets/MyProject/Scenes/Fase1.unity
+    guid: ca04a515cbeed064f8f621d619dec0d9
+  - enabled: 1
+    path: Assets/MyProject/Scenes/TesteGrid.unity
+    guid: d45ea312aa09f844ca38cdd18674c40a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}
   m_UseUCBPForAssetBundles: 0
