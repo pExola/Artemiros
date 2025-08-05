@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 42430238}
+  - component: {fileID: 42430239}
   m_Layer: 5
   m_Name: GridUI
   m_TagString: Untagged
@@ -154,6 +155,30 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -20}
   m_SizeDelta: {x: -600, y: -460}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &42430239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 42430237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_StartCorner: 3
+  m_StartAxis: 0
+  m_CellSize: {x: 70, y: 70}
+  m_Spacing: {x: 5, y: 5}
+  m_Constraint: 0
+  m_ConstraintCount: 2
 --- !u!1 &98815070
 GameObject:
   m_ObjectHideFlags: 0
@@ -833,33 +858,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44fd244bfe7849a48b867340d738f9ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nivelAtual: {fileID: 11400000, guid: bc59bd101809eaa4eab79f2cc194fc49, type: 2}
-  tempoInicialDoNivel: 30
+  levelGroupAtual: {fileID: 11400000, guid: 05cc7e83705c533459a967a0a90d7575, type: 2}
+  tempoInicialDoNivel: 60
   relogioVisual: {fileID: 1398369627}
-  gridCellPrefab: {fileID: 3062118415134404450, guid: b9f34e20c0a54884d84529778d1cd875, type: 3}
-  monstroPrefab:
-  - {fileID: 4989441650701787126, guid: 3e913bd3f105be341ac50250a55186ac, type: 3}
-  - {fileID: 4989441650701787126, guid: 375fb4b56df58504ab9d1682a53242fe, type: 3}
-  - {fileID: 4989441650701787126, guid: e8c100a13c1c89e478c45261355f407a, type: 3}
-  - {fileID: 4989441650701787126, guid: 5ea8a269e53863547af85716e3278745, type: 3}
-  - {fileID: 4989441650701787126, guid: e2b645f57975f9248838d45f12dd4048, type: 3}
-  - {fileID: 4989441650701787126, guid: 74e0b0ca260edd94fa587827acb01e06, type: 3}
-  paredePrefab: {fileID: 4989441650701787126, guid: 39dc9a00babb2bd47889fc62c25a2254, type: 3}
-  prefabCaixa: {fileID: 0}
-  prefabGerador: {fileID: 0}
+  boardContainer: {fileID: 42430238}
   armazemUIParent: {fileID: 98815071}
+  painelVitoria: {fileID: 0}
+  painelDerrota: {fileID: 0}
+  slotPrefab: {fileID: 1567658956690581314, guid: 79e1fb3de915e0a4798b00529c28b118, type: 3}
   monstroIconPrefab: {fileID: 3389938260265846616, guid: ac465bde4fe1f244a80b2903da740086, type: 3}
   monstroSprites:
-  - {fileID: -6690080209013966528, guid: baf2e096b1f071d48a96de016b9a13c8, type: 3}
-  - {fileID: -1140220150309726818, guid: 6b1e8da7672618f448b49c346c2c123b, type: 3}
-  - {fileID: -6410214552901608049, guid: cfdba3340fb2fa4459d81ae81f664555, type: 3}
-  - {fileID: -6695447764876569476, guid: 1c07f09983e95dc418c394f159880356, type: 3}
-  - {fileID: 750323416598709284, guid: 609573f988a291b42b515aea02516443, type: 3}
-  - {fileID: 5617714613270530683, guid: a6b82fe00f6cc0545afeb6be7ae5efde, type: 3}
-  Armazem: []
-  boardContainer: {fileID: 42430238}
+  - {fileID: 7014083092447763338, guid: a15bb7b0f46274446a3e2070d35f7935, type: 3}
+  - {fileID: -173952802126614883, guid: 9404b25419892e94d9199303d63cdbf8, type: 3}
+  - {fileID: 5844828248733720401, guid: 53f45f0b68bd1cb4aa6d5cc984e57eca, type: 3}
+  - {fileID: -8759933779451299138, guid: fced102f22b64ee428d533b0d415fd37, type: 3}
+  - {fileID: -1317908435499591305, guid: f5ca37239f18d634887244cafc9c0b99, type: 3}
+  - {fileID: -7595097679768293466, guid: b7348f64fc8942247bc49f3d47c9cc50, type: 3}
   graphicRaycaster: {fileID: 826320831}
   eventSystem: {fileID: 1204997790}
+  estagioParaVisualizar: 0
+  Armazem: []
 --- !u!4 &1619770017
 Transform:
   m_ObjectHideFlags: 0

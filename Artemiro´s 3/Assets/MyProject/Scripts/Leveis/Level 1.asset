@@ -19,9 +19,52 @@ MonoBehaviour:
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
+      corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 1
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+  - colunas:
+    - tipo: 1
+      corDoMonstro: 3
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+  - colunas:
     - tipo: 1
       corDoMonstro: 0
       escondido: 0
@@ -38,7 +81,71 @@ MonoBehaviour:
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
-    - tipo: 1
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+  - colunas:
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 

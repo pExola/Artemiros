@@ -23,11 +23,7 @@ public class GridController : MonoBehaviour
     public GameObject painelDerrota;
 
     [Header("Prefabs")]
-    public GameObject gridCellPrefab;
-    public List<GameObject> monstroPrefab;
-    public GameObject paredePrefab;
-    public GameObject prefabCaixa;
-    public GameObject prefabGerador;
+    public GameObject slotPrefab;
     public GameObject monstroIconPrefab;
     public List<Sprite> monstroSprites;
 
@@ -114,77 +110,76 @@ public class GridController : MonoBehaviour
         gridWidth = (gridHeight > 0) ? nivelData.layoutDoGrid[0].colunas.Count : 0;
         maxArmazem = nivelData.TamanhoInventario;
 
+        GridLayoutGroup gridLayout = boardContainer.GetComponent<GridLayoutGroup>();
+        if (gridLayout != null)
+        {
+            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            gridLayout.constraintCount = gridWidth;
+        }
+
         Monstros = new List<List<Monstro>>();
         for (int i = 0; i < gridWidth; i++)
             Monstros.Add(new List<Monstro>(new Monstro[gridHeight]));
-
-        float containerWidth = boardContainer.rect.width;
-        float containerHeight = boardContainer.rect.height;
-        float cellSize = Mathf.Min(containerWidth / gridWidth, containerHeight / gridHeight);
-        float totalGridWidth = cellSize * gridWidth;
-        float totalGridHeight = cellSize * gridHeight;
-        float startX = -(totalGridWidth / 2) + (cellSize / 2);
-        float startY = -(totalGridHeight / 2) + (cellSize / 2);
 
         for (int y = 0; y < gridHeight; y++)
         {
             for (int x = 0; x < gridWidth; x++)
             {
-                float posX = startX + x * cellSize;
-                float posY = startY + y * cellSize;
-                int linhaDoLayout = (gridHeight - 1) - y;
+                int linhaDoLayout = y;
                 LevelData.TileConfig tile = nivelData.layoutDoGrid[linhaDoLayout].colunas[x];
 
-                if (gridCellPrefab != null)
-                {
-                    GameObject cell = Instantiate(gridCellPrefab, boardContainer);
-                    cell.name = $"Grid Cell ({x}, {y})";
-                    RectTransform cellRect = cell.GetComponent<RectTransform>();
-                    if (cellRect != null)
-                    {
-                        cellRect.sizeDelta = new Vector2(cellSize, cellSize);
-                        cellRect.anchoredPosition = new Vector2(posX, posY);
-                    }
-                }
-                if (tile.tipo == LevelData.TipoDeTile.Vazio) continue;
+                // 1. Instancia o "Prefab Combo"
+                GameObject slotObj = Instantiate(slotPrefab, boardContainer);
+                slotObj.name = $"Slot ({x},{y})";
 
-                GameObject prefabParaInstanciar = null;
-                switch (tile.tipo)
+                // 2. Encontra as partes dentro do prefab instanciado (use os nomes exatos que você deu)
+                Transform pecaTransform = slotObj.transform.Find("Peca_Monstro");
+                if (pecaTransform == null)
                 {
-                    case LevelData.TipoDeTile.Monstro:
-                        prefabParaInstanciar = tile.escondido ? prefabCaixa : monstroPrefab[tile.corDoMonstro];
-                        break;
-                    case LevelData.TipoDeTile.Parede:
-                        prefabParaInstanciar = paredePrefab;
-                        break;
-                    case LevelData.TipoDeTile.Gerador:
-                        prefabParaInstanciar = prefabGerador;
-                        break;
+                    Debug.LogError("Objeto 'Peca_Monstro' não encontrado dentro do Slot_Prefab!", slotObj);
+                    continue;
                 }
 
-                if (prefabParaInstanciar != null)
+                Image pecaImage = pecaTransform.GetComponent<Image>();
+                Monstro monstroComponent = pecaTransform.GetComponent<Monstro>();
+
+                // 3. Configura o slot com base nos dados do nível
+                if (tile.tipo == LevelData.TipoDeTile.Vazio)
                 {
-                    GameObject obj = Instantiate(prefabParaInstanciar, boardContainer);
-                    obj.name = $"{tile.tipo} ({x}, {y})";
-                    RectTransform objRect = obj.GetComponent<RectTransform>();
-                    if (objRect != null)
+                    pecaTransform.gameObject.SetActive(false); // Desativa só a peça
+                    Monstros[x][y] = null; // Marca a posição como vazia
+                }
+                else
+                {
+                    Sprite spriteParaMostrar = null;
+                    switch (tile.tipo)
                     {
-                        objRect.sizeDelta = new Vector2(cellSize * 0.95f, cellSize * 0.95f);
-                        objRect.anchoredPosition = new Vector2(posX, posY);
+                        case LevelData.TipoDeTile.Monstro:
+                            // ATENÇÃO: A forma de pegar o sprite pode precisar de ajuste
+                            // Exemplo: O sprite da caixa está no índice 6 da lista monstroSprites
+                            spriteParaMostrar = tile.escondido ? monstroSprites[6] : monstroSprites[tile.corDoMonstro];
+                            break;
+                        case LevelData.TipoDeTile.Parede:
+                            spriteParaMostrar = monstroSprites[7]; // Exemplo: sprite da parede
+                            break;
+                        case LevelData.TipoDeTile.Gerador:
+                            spriteParaMostrar = monstroSprites[8]; // Exemplo: sprite do gerador
+                            break;
                     }
-                    Monstro monstroComponent = obj.GetComponent<Monstro>();
-                    if (monstroComponent != null)
+                    pecaImage.sprite = spriteParaMostrar;
+
+                    // Configura os dados do monstro
+                    monstroComponent.posicaoGrid = new Tuple<int, int>(x, y);
+                    monstroComponent.escondido = tile.escondido;
+                    monstroComponent.cor = (tile.tipo == LevelData.TipoDeTile.Parede) ? -1 : tile.corDoMonstro;
+                    monstroComponent.gridController = this;
+
+                    if (tile.tipo == LevelData.TipoDeTile.Gerador && pecaTransform.TryGetComponent(out GeradorDeMonstros geradorComponent))
                     {
-                        monstroComponent.posicaoGrid = new Tuple<int, int>(x, y);
-                        monstroComponent.escondido = tile.escondido;
-                        monstroComponent.cor = (tile.tipo == LevelData.TipoDeTile.Parede) ? -1 : tile.corDoMonstro;
-                        monstroComponent.gridController = this;
-                        if (tile.tipo == LevelData.TipoDeTile.Gerador && obj.TryGetComponent(out GeradorDeMonstros geradorComponent))
-                        {
-                            geradorComponent.monstrosParaGerar = tile.MonstrosASeremGeradosPeloGerador;
-                        }
-                        Monstros[x][y] = monstroComponent;
+                        geradorComponent.monstrosParaGerar = tile.MonstrosASeremGeradosPeloGerador;
                     }
+
+                    Monstros[x][y] = monstroComponent;
                 }
             }
         }
@@ -192,7 +187,7 @@ public class GridController : MonoBehaviour
 
     public void ProcessarCliqueNoMonstro(Monstro monstroClicado)
     {
-        if (monstroClicado == null || monstroClicado.vazio || monstroClicado.cor == -1) return;
+        if (monstroClicado == null || !monstroClicado.gameObject.activeInHierarchy || monstroClicado.vazio || monstroClicado.cor == -1) return;
 
         if (PodeRemover(monstroClicado) && Armazem.Count < maxArmazem)
         {
@@ -207,7 +202,7 @@ public class GridController : MonoBehaviour
         if (!Armazem.Contains(monstro))
         {
             Armazem.Add(monstro);
-            monstro.gameObject.SetActive(false);
+            
         }
         Armazem.Sort((a, b) => a.cor.CompareTo(b.cor));
         AtualizarUIArmazem();
@@ -222,49 +217,39 @@ public class GridController : MonoBehaviour
     void RemoverDoGrid(Monstro monstro)
     {
         Monstros[monstro.posicaoGrid.Item1][monstro.posicaoGrid.Item2] = null;
-        if (monstro.segundaParte != null)
-        {
-            var pos2 = monstro.segundaParte.posicaoGrid;
-            Monstros[pos2.Item1][pos2.Item2] = null;
-            Destroy(monstro.segundaParte.gameObject);
-        }
-        Destroy(monstro.gameObject);
+        monstro.gameObject.SetActive(false);
     }
 
     void VerificarVitoriaDoEstagio()
     {
-        // Condição 1: Procura por qualquer monstro que ainda reste no grid.
         bool monstrosRestantesNoGrid = Monstros.Any(coluna => coluna.Any(m => m != null && m.cor != -1));
+        if (monstrosRestantesNoGrid) return;
 
-        // Se AINDA HÁ monstros no grid, o estágio não terminou.
-        if (monstrosRestantesNoGrid)
-        {
-            return; // Sai da função, o jogo continua normalmente.
-        }
-
-        // Se CHEGAMOS AQUI, o grid está vazio. Agora, vamos checar a bandeja.
-
-        // Condição 2: Verifica se a bandeja também está vazia.
         bool bandejaVazia = Armazem.Count == 0;
-
-        // --- CONDIÇÃO DE VITÓRIA DO ESTÁGIO ---
-        // A vitória do estágio só acontece se AMBAS as condições forem verdadeiras.
         if (bandejaVazia)
         {
-            Debug.Log($"Estágio {estagioAtual + 1} Concluído!");
             estagioAtual++;
-
             if (estagioAtual >= levelGroupAtual.estagios.Count)
             {
                 Vitoria("Nível Concluído!");
             }
             else
             {
-                // Espera um pouco antes de carregar o próximo estágio, para o jogador respirar.
                 StartCoroutine(CarregarProximoEstagioComDelay(1.5f));
             }
-            return; // Sai da função após iniciar a transição
+            return;
         }
+
+        if (!bandejaVazia)
+        {
+            var contagemDeCores = Armazem.GroupBy(m => m.cor).ToDictionary(g => g.Key, g => g.Count());
+            bool combinacaoPossivel = contagemDeCores.Any(par => par.Value >= 3);
+            if (!combinacaoPossivel)
+            {
+                Derrota("Sem combinações possíveis!");
+            }
+        return; // Sai da função após iniciar a transição
+    }
 
         // --- CONDIÇÃO DE DERROTA POR "SOFT-LOCK" ---
         // Se o grid está vazio, mas a bandeja NÃO está, verificamos se ainda é possível fazer combinações.
@@ -335,71 +320,92 @@ public class GridController : MonoBehaviour
 
     bool PodeRemover(Monstro monstro)
     {
-        int x = monstro.posicaoGrid.Item1;
-        int yParteMaisBaixa = monstro.posicaoGrid.Item2;
+        // Verifica se a parte principal do monstro tem um caminho livre.
+        if (!TemCaminhoLivre(monstro.posicaoGrid.Item1, monstro.posicaoGrid.Item2))
+        {
+            return false;
+        }
 
+        // Se for uma peça de 2 partes, verifica a segunda parte também.
         if (monstro.segundaParte != null)
         {
-            yParteMaisBaixa = Mathf.Min(yParteMaisBaixa, monstro.segundaParte.posicaoGrid.Item2);
+            if (!TemCaminhoLivre(monstro.segundaParte.posicaoGrid.Item1, monstro.segundaParte.posicaoGrid.Item2))
+            {
+                return false;
+            }
         }
-        if (yParteMaisBaixa <= 0) return true; // Já está na borda inferior
 
-        var visitados = new HashSet<Tuple<int, int>>();
+        // Adicione aqui a verificação para 'terceiraParte' se necessário.
+
+        // Se TODAS as partes da peça têm um caminho livre, ela pode ser removida.
+        return true;
+    }
+
+    private bool TemCaminhoLivre(int x, int y)
+    {
+        if (y == 0)
+        {
+            return true;
+        }
+
+        int[] dx = { 0, 0, 1, -1 }; // Vizinhos na horizontal
+        int[] dy = { 1, -1, 0, 0 }; // Vizinhos na vertical
+
+        for (int i = 0; i < 4; i++)
+        {
+            int vizinhoX = x + dx[i];
+            int vizinhoY = y + dy[i];
+
+            if (vizinhoX >= 0 && vizinhoX < gridWidth && vizinhoY >= 0 && vizinhoY < gridHeight)
+            {
+                if (Monstros[vizinhoX][vizinhoY] == null)
+                {
+                    if (BuscaPorCaminhoAteBorda(vizinhoX, vizinhoY))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Se não está na borda de baixo e não encontrou nenhum caminho, está presa.
+        return false;
+    }
+
+    private bool BuscaPorCaminhoAteBorda(int startX, int startY)
+    {
         var fila = new Queue<Tuple<int, int>>();
-        var posInicial = new Tuple<int, int>(x, yParteMaisBaixa);
+        var visitados = new HashSet<Tuple<int, int>>();
 
+        var posInicial = new Tuple<int, int>(startX, startY);
         fila.Enqueue(posInicial);
         visitados.Add(posInicial);
 
         while (fila.Count > 0)
         {
             var pos = fila.Dequeue();
+            int currentX = pos.Item1;
+            int currentY = pos.Item2;
 
-            if (pos.Item2 <= 0)
+            if (currentY == 0)
             {
-                return true; // Chegou na borda
-            }
+                return true; // Caminho para a borda de baixo encontrado!
+            }
+
             int[] dx = { 0, 0, 1, -1 };
             int[] dy = { 1, -1, 0, 0 };
 
             for (int i = 0; i < 4; i++)
             {
-                int nx = pos.Item1 + dx[i];
-                int ny = pos.Item2 + dy[i];
-                var proximaPos = new Tuple<int, int>(nx, ny);
+                int nextX = currentX + dx[i];
+                int nextY = currentY + dy[i];
+                var proximaPos = new Tuple<int, int>(nextX, nextY);
 
-                if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight && !visitados.Contains(proximaPos))
+                if (nextX >= 0 && nextX < gridWidth && nextY >= 0 && nextY < gridHeight &&
+                    !visitados.Contains(proximaPos) && Monstros[nextX][nextY] == null)
                 {
-                    var proximaCelula = Monstros[nx][ny];
-
-                    if ((proximaCelula == null || proximaCelula.vazio) && proximaCelula?.cor != -1)
-                    {
-                        visitados.Add(proximaPos);
-                        fila.Enqueue(proximaPos);
-                    }
-
-                    if (proximaCelula is not null && proximaCelula.escondido)
-                    {
-                        GameObject ElementoDoMonstro = proximaCelula.gameObject;
-                        // Revela o monstro escondido
-                        Destroy(ElementoDoMonstro); // Remove a caixa
-
-                        GameObject monstroRevelado = Instantiate(monstroPrefab[proximaCelula.cor], proximaCelula.transform.position, Quaternion.identity, this.transform);
-
-                        monstroRevelado.name = $"Monstro Revelado ({proximaCelula.cor})";
-
-                        Monstro novoMonstro = monstroRevelado.GetComponent<Monstro>();
-
-                        novoMonstro.posicaoGrid = proximaCelula.posicaoGrid;
-
-                        novoMonstro.vazio = false;
-
-                        novoMonstro.escondido = false; // Marca como revelado
-
-                        novoMonstro.cor = proximaCelula.cor; // Mantém a cor do monstro
-
-                        Monstros[proximaCelula.posicaoGrid.Item1][proximaCelula.posicaoGrid.Item2] = novoMonstro;
-                    }
+                    visitados.Add(proximaPos);
+                    fila.Enqueue(proximaPos);
                 }
             }
         }
