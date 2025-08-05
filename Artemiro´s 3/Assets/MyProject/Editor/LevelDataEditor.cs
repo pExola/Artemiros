@@ -13,6 +13,7 @@ public class LevelDataEditor : Editor
 
     private List<ParPosicoes> bisTemp = new List<ParPosicoes>();
     private List<TrioPosicoes> trisTemp = new List<TrioPosicoes>();
+
     private bool bisLoaded = false;
     private bool trisLoaded = false;
 
@@ -21,6 +22,7 @@ public class LevelDataEditor : Editor
         LevelData data = (LevelData)target;
 
         data.TamanhoInventario = EditorGUILayout.IntField("Tamanho Inventário", data.TamanhoInventario);
+        data.tempoMaximo = EditorGUILayout.IntField("Tempo Máximo (segundos)", data.tempoMaximo);
 
         if (data.layoutDoGrid == null)
             data.layoutDoGrid = new List<LevelData.Linha>();

@@ -45,4 +45,5 @@ public class LevelData : ScriptableObject
     public int TamanhoInventario = 7;
     public List<BisData> BisCoords = new List<BisData>();
     public List<TrisData> TrisCoords = new List<TrisData>();
+    public int tempoMaximo = 60; // Tempo máximo do nível em segundos
 }

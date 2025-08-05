@@ -43,6 +43,7 @@ public class LevelDataGridEditorWindow : EditorWindow
 
         // Campo para editar o tamanho do inventário
         levelData.TamanhoInventario = EditorGUILayout.IntField("Tamanho do Inventário", levelData.TamanhoInventario);
+
         if (levelData.TamanhoInventario < 1) levelData.TamanhoInventario = 1;
 
         // --- Edição do Grid ---
@@ -284,6 +285,8 @@ public class LevelDataGridEditorWindow : EditorWindow
             EditorUtility.SetDirty(levelData);
             Debug.Log("Bis/Tris salvos por coordenadas!");
         }
+
+        levelData.tempoMaximo = EditorGUILayout.IntField("Tempo Máximo (segundos)", levelData.tempoMaximo);
     }
 
     private void SyncListsFromAsset()
