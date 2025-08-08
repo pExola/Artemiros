@@ -19,7 +19,7 @@ MonoBehaviour:
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
-      corDoMonstro: 3
+      corDoMonstro: 1
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
@@ -42,19 +42,6 @@ MonoBehaviour:
   - colunas:
     - tipo: 1
       corDoMonstro: 2
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 1
-      corDoMonstro: 1
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-    - tipo: 1
-      corDoMonstro: 0
-      escondido: 0
-      MonstrosASeremGeradosPeloGerador: 
-  - colunas:
-    - tipo: 1
-      corDoMonstro: 3
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
@@ -62,7 +49,7 @@ MonoBehaviour:
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
-      corDoMonstro: 3
+      corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
   TamanhoInventario: 7
