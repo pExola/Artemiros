@@ -27,6 +27,12 @@ public class GridController : MonoBehaviour
     public GameObject monstroIconPrefab;
     public List<Sprite> monstroSprites;
 
+    [Tooltip("Lista de sprites para as peças em estado DESBLOQUEADO.")]
+    public List<Sprite> spritesDesbloqueados; 
+
+    [Tooltip("Lista de sprites para as peças em estado BLOQUEADO.")]
+    public List<Sprite> spritesBloqueados;
+
     [Header("Referências de Sistema")]
     public GraphicRaycaster graphicRaycaster;
     public EventSystem eventSystem;
@@ -140,7 +146,7 @@ public class GridController : MonoBehaviour
                     continue;
                 }
 
-                Image pecaImage = pecaTransform.GetComponent<Image>();
+                //Image pecaImage = pecaTransform.GetComponent<Image>();
                 Monstro monstroComponent = pecaTransform.GetComponent<Monstro>();
 
                 // 3. Configura o slot com base nos dados do nível
@@ -151,7 +157,7 @@ public class GridController : MonoBehaviour
                 }
                 else
                 {
-                    Sprite spriteParaMostrar = null;
+                    /*Sprite spriteParaMostrar = null;
                     switch (tile.tipo)
                     {
                         case LevelData.TipoDeTile.Monstro:
@@ -166,7 +172,7 @@ public class GridController : MonoBehaviour
                             spriteParaMostrar = monstroSprites[8]; // Exemplo: sprite do gerador
                             break;
                     }
-                    pecaImage.sprite = spriteParaMostrar;
+                    pecaImage.sprite = spriteParaMostrar;*/
 
                     // Configura os dados do monstro
                     monstroComponent.posicaoGrid = new Tuple<int, int>(x, y);
@@ -183,6 +189,7 @@ public class GridController : MonoBehaviour
                 }
             }
         }
+        AtualizarVisualsDoGrid();
     }
 
     public void ProcessarCliqueNoMonstro(Monstro monstroClicado)
@@ -194,6 +201,52 @@ public class GridController : MonoBehaviour
             AdicionarAoArmazem(monstroClicado);
             RemoverDoGrid(monstroClicado);
             VerificarVitoriaDoEstagio();
+            AtualizarVisualsDoGrid();
+        }
+    }
+
+    void AtualizarVisualsDoGrid()
+    {
+        for (int y = 0; y < gridHeight; y++)
+        {
+            for (int x = 0; x < gridWidth; x++)
+            {
+                Monstro monstro = Monstros[x][y];
+
+                // Se não houver monstro nesta célula, pula para a próxima
+                if (monstro == null) continue;
+
+                // Encontra a imagem da peça
+                Image pecaImage = monstro.GetComponent<Image>();
+                if (pecaImage == null) continue;
+
+                // Decide se a peça está bloqueada ou não usando a regra de jogo
+                bool estaLivre = PodeRemover(monstro);
+
+                // Seleciona a lista de sprites correta (bloqueado ou desbloqueado)
+                List<Sprite> spriteList = estaLivre ? spritesDesbloqueados : spritesBloqueados;
+
+                // Pega o sprite correto da lista com base na cor/tipo da peça
+                // (Esta lógica de índice deve corresponder à sua lista de sprites)
+                Sprite spriteParaMostrar = null;
+                // Exemplo de como pegar o sprite. Adapte os índices se necessário.
+                // Índices 0-5: Cores, 6: Caixa, 7: Parede, 8: Gerador
+                if (monstro.escondido)
+                {
+                    spriteParaMostrar = spriteList[6];
+                }
+                else if (monstro.cor == -1) // Parede
+                {
+                    spriteParaMostrar = spriteList[7];
+                }
+                else
+                {
+                    spriteParaMostrar = spriteList[monstro.cor];
+                }
+
+                // Define o sprite na imagem
+                pecaImage.sprite = spriteParaMostrar;
+            }
         }
     }
 
