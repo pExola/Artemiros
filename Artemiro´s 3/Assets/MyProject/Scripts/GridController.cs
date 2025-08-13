@@ -22,6 +22,12 @@ public class GridController : MonoBehaviour
     public GameObject painelVitoria;
     public GameObject painelDerrota;
 
+    [Header("Configuração da Animação")]
+    [Tooltip("Duração da animação da peça caindo na bandeja.")]
+    public float duracaoAnimacao = 0.3f;
+    [Tooltip("Pausa em segundos após uma combinação ser feita, antes das peças sumirem.")]
+    public float delayAposCombinacao = 0.25f;
+
     [Header("Prefabs")]
     public GameObject slotPrefab;
     public GameObject monstroIconPrefab;
@@ -36,6 +42,7 @@ public class GridController : MonoBehaviour
     [Header("Referências de Sistema")]
     public GraphicRaycaster graphicRaycaster;
     public EventSystem eventSystem;
+    public Canvas rootCanvas;
 
     [Header("Debug")]
     [Tooltip("Qual estágio do LevelGroup deve ser desenhado na Scene? (0, 1, 2, etc.)")]
@@ -49,6 +56,7 @@ public class GridController : MonoBehaviour
     private float tempoRestante;
     private int estagioAtual = 0;
     private bool jogoTerminou = false;
+    private bool isAnimating = false;
 
     void Start()
     {
@@ -198,11 +206,72 @@ public class GridController : MonoBehaviour
 
         if (PodeRemover(monstroClicado) && Armazem.Count < maxArmazem)
         {
-            AdicionarAoArmazem(monstroClicado);
-            RemoverDoGrid(monstroClicado);
-            VerificarVitoriaDoEstagio();
-            AtualizarVisualsDoGrid();
+            // O clique agora inicia a Corrotina de JOGADA, não apenas de animação
+            StartCoroutine(ExecutarJogada(monstroClicado));
         }
+    }
+    IEnumerator ExecutarJogada(Monstro monstro)
+    {
+        isAnimating = true;
+
+        Vector3 startPosition = monstro.transform.position;
+        Sprite spriteDaPeca = monstro.GetComponent<Image>().sprite;
+
+        // 1. Lógica de Jogo (acontece instantaneamente)
+        AdicionarAoArmazem(monstro);
+        RemoverDoGrid(monstro); // Esconde a imagem da peça original
+
+        // --- INÍCIO DA CORREÇÃO ---
+        // 2. ATUALIZAÇÃO VISUAL IMEDIATA
+        // Chamamos a atualização dos sprites de bloqueio AQUI, logo após remover a peça.
+        AtualizarVisualsDoGrid();
+        // --- FIM DA CORREÇÃO ---
+
+        // 3. Animação (acontece visualmente em paralelo)
+        yield return StartCoroutine(AnimarPecaParaBandeja(startPosition, spriteDaPeca));
+
+        // 4. Lógica Pós-Animação
+        AtualizarUIArmazem();
+
+        bool combinacaoFeita = Armazem.GroupBy(m => m.cor).Any(g => g.Count() >= 3);
+        if (combinacaoFeita)
+        {
+            yield return new WaitForSeconds(delayAposCombinacao);
+        }
+
+        ChecarEEliminarGrupos();
+        VerificarVitoriaDoEstagio();
+
+        isAnimating = false;
+    }
+
+    IEnumerator AnimarPecaParaBandeja(Vector3 startPosition, Sprite spriteDaPeca)
+    {
+        // Cria uma cópia "fantasma" da peça para animar
+        GameObject pecaFantasma = new GameObject("PecaAnimada");
+        Image imgFantasma = pecaFantasma.AddComponent<Image>();
+        imgFantasma.sprite = spriteDaPeca;
+
+        RectTransform rtFantasma = pecaFantasma.GetComponent<RectTransform>();
+        rtFantasma.SetParent(rootCanvas.transform, true);
+        rtFantasma.sizeDelta = new Vector2(50, 50); // Pode precisar de ajuste
+        rtFantasma.position = startPosition;
+
+        // Pega a posição do último slot preenchido na bandeja
+        int targetSlotIndex = Armazem.Count - 1;
+        Vector3 endPosition = armazemUIParent.GetChild(targetSlotIndex).position;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < duracaoAnimacao)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duracaoAnimacao;
+            rtFantasma.position = Vector3.Lerp(startPosition, endPosition, t);
+            rtFantasma.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.5f, t);
+            yield return null;
+        }
+
+        Destroy(pecaFantasma); // Destrói a cópia
     }
 
     void AtualizarVisualsDoGrid()
@@ -255,71 +324,59 @@ public class GridController : MonoBehaviour
         if (!Armazem.Contains(monstro))
         {
             Armazem.Add(monstro);
-            
         }
         Armazem.Sort((a, b) => a.cor.CompareTo(b.cor));
-        AtualizarUIArmazem();
-        ChecarEEliminarGrupos();
-
-        if (Armazem.Count >= maxArmazem)
-        {
-            Derrota("Bandeja Cheia!");
-        }
     }
 
     void RemoverDoGrid(Monstro monstro)
     {
+        // Remove a referência da nossa matriz de dados
         Monstros[monstro.posicaoGrid.Item1][monstro.posicaoGrid.Item2] = null;
-        monstro.gameObject.SetActive(false);
+
+        // CORREÇÃO: Em vez de desativar o GameObject, desativamos apenas a IMAGEM.
+        // Isso mantém o objeto ativo para que sua posição possa ser lida.
+        Image img = monstro.GetComponent<Image>();
+        if (img != null)
+        {
+            img.enabled = false;
+        }
     }
 
     void VerificarVitoriaDoEstagio()
     {
+        // Se o jogo já terminou, não faz mais nada para evitar chamadas duplicadas
+        if (jogoTerminou) return;
+
+        // Condição 1: Verifica se ainda há monstros no grid
         bool monstrosRestantesNoGrid = Monstros.Any(coluna => coluna.Any(m => m != null && m.cor != -1));
-        if (monstrosRestantesNoGrid) return;
+        if (monstrosRestantesNoGrid) return; // Se há monstros, o estágio não acabou
 
+        // Condição 2: Verifica se a bandeja está vazia
         bool bandejaVazia = Armazem.Count == 0;
-        if (bandejaVazia)
-        {
-            estagioAtual++;
-            if (estagioAtual >= levelGroupAtual.estagios.Count)
-            {
-                Vitoria("Nível Concluído!");
-            }
-            else
-            {
-                StartCoroutine(CarregarProximoEstagioComDelay(1.5f));
-            }
-            return;
-        }
-
         if (!bandejaVazia)
         {
+            // Se o grid está vazio mas a bandeja não, checa por soft-lock
             var contagemDeCores = Armazem.GroupBy(m => m.cor).ToDictionary(g => g.Key, g => g.Count());
             bool combinacaoPossivel = contagemDeCores.Any(par => par.Value >= 3);
             if (!combinacaoPossivel)
             {
                 Derrota("Sem combinações possíveis!");
             }
-        return; // Sai da função após iniciar a transição
-    }
+            return; // Se há peças mas combinações são possíveis, o estágio não acabou
+        }
 
-        // --- CONDIÇÃO DE DERROTA POR "SOFT-LOCK" ---
-        // Se o grid está vazio, mas a bandeja NÃO está, verificamos se ainda é possível fazer combinações.
-        if (!bandejaVazia)
+        // Verifica se o estágio que ACABAMOS de concluir era o último.
+        // Usamos "+ 1" porque os índices da lista começam em 0.
+        if (estagioAtual + 1 >= levelGroupAtual.estagios.Count)
         {
-            // Agrupa os monstros na bandeja por cor e conta quantos há de cada um.
-            var contagemDeCores = Armazem.GroupBy(m => m.cor)
-                                         .ToDictionary(g => g.Key, g => g.Count());
-
-            // Verifica se existe algum grupo de cor com 3 ou mais monstros.
-            bool combinacaoPossivel = contagemDeCores.Any(par => par.Value >= 3);
-
-            // Se NENHUMA combinação for possível, o jogador está preso. É uma derrota.
-            if (!combinacaoPossivel)
-            {
-                Derrota("Sem combinações possíveis!");
-            }
+            // Se era o último, é vitória!
+            Vitoria("Nível Concluído!");
+        }
+        else
+        {
+            // Se não era o último, incrementa o contador e carrega o próximo.
+            estagioAtual++;
+            StartCoroutine(CarregarProximoEstagioComDelay(1.5f));
         }
     }
 
@@ -470,17 +527,30 @@ public class GridController : MonoBehaviour
     void AtualizarUIArmazem()
     {
         if (armazemUIParent == null) return;
-        foreach (Transform child in armazemUIParent)
-            Destroy(child.gameObject);
 
-        if (monstroIconPrefab == null) return;
-        foreach (Monstro monstro in Armazem)
+        // Itera pelos slots da bandeja (Slot_1, Slot_2, etc.)
+        for (int i = 0; i < armazemUIParent.childCount; i++)
         {
-            GameObject monstroIcon = Instantiate(monstroIconPrefab, armazemUIParent);
-            Image imageComponent = monstroIcon.GetComponent<Image>();
-            if (imageComponent != null && monstro.cor >= 0 && monstro.cor < monstroSprites.Count)
+            // Pega o transform do slot e a imagem dentro dele
+            Transform slot = armazemUIParent.GetChild(i);
+            Image iconImage = slot.GetComponent<Image>();
+
+            if (iconImage == null) continue; // Pula se não houver imagem no slot
+
+            // Verifica se este slot deve ter um monstro
+            if (i < Armazem.Count)
             {
-                imageComponent.sprite = monstroSprites[monstro.cor];
+                // Pega o monstro correspondente da lista de dados
+                Monstro monstroNoSlot = Armazem[i];
+
+                // Ativa a imagem do slot e define o sprite correto
+                iconImage.enabled = true;
+                iconImage.sprite = monstroSprites[monstroNoSlot.cor];
+            }
+            else
+            {
+                // Se o slot estiver vazio, apenas desativa a imagem
+                iconImage.enabled = false;
             }
         }
     }
