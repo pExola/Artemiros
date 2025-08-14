@@ -217,22 +217,36 @@ public class GridController : MonoBehaviour
         Vector3 startPosition = monstro.transform.position;
         Sprite spriteDaPeca = monstro.GetComponent<Image>().sprite;
 
-        // 1. Lógica de Jogo (acontece instantaneamente)
+        // --- INÍCIO DA NOVA LÓGICA DE "ESTEIRA" ---
+
+        // 1. SIMULAÇÃO: Descobre qual seria o índice final da peça na bandeja ordenada.
+        List<Monstro> listaSimulada = new List<Monstro>(Armazem);
+        listaSimulada.Add(monstro);
+        listaSimulada.Sort((a, b) => a.cor.CompareTo(b.cor));
+        int indiceFinal = listaSimulada.IndexOf(monstro);
+
+        // 2. LÓGICA DE JOGO: Atualiza os dados imediatamente.
         AdicionarAoArmazem(monstro);
-        RemoverDoGrid(monstro); // Esconde a imagem da peça original
-
-        // --- INÍCIO DA CORREÇÃO ---
-        // 2. ATUALIZAÇÃO VISUAL IMEDIATA
-        // Chamamos a atualização dos sprites de bloqueio AQUI, logo após remover a peça.
+        RemoverDoGrid(monstro);
         AtualizarVisualsDoGrid();
-        // --- FIM DA CORREÇÃO ---
 
-        // 3. Animação (acontece visualmente em paralelo)
-        yield return StartCoroutine(AnimarPecaParaBandeja(startPosition, spriteDaPeca));
+        // 3. ANIMAÇÃO DA "ESTEIRA": Move as peças que estão à direita do novo slot.
+        for (int i = indiceFinal; i < Armazem.Count - 1; i++)
+        {
+            Transform iconeParaMover = armazemUIParent.GetChild(i);
+            Vector3 posicaoAlvo = armazemUIParent.GetChild(i + 1).position;
+            StartCoroutine(AnimarIconeDaBandeja(iconeParaMover, posicaoAlvo));
+        }
 
-        // 4. Lógica Pós-Animação
-        AtualizarUIArmazem();
+        // Pequena pausa para a esteira se mover
+        if (Armazem.Count > 1) yield return new WaitForSeconds(duracaoAnimacao / 2);
 
+        // 4. ANIMAÇÃO DA PEÇA CAINDO: Anima a peça para o slot que foi esvaziado.
+        yield return StartCoroutine(AnimarPecaParaBandeja(startPosition, spriteDaPeca, indiceFinal));
+
+        // --- FIM DA NOVA LÓGICA ---
+
+        // 5. LÓGICA PÓS-JOGADA
         bool combinacaoFeita = Armazem.GroupBy(m => m.cor).Any(g => g.Count() >= 3);
         if (combinacaoFeita)
         {
@@ -245,20 +259,33 @@ public class GridController : MonoBehaviour
         isAnimating = false;
     }
 
-    IEnumerator AnimarPecaParaBandeja(Vector3 startPosition, Sprite spriteDaPeca)
+    IEnumerator AnimarIconeDaBandeja(Transform icone, Vector3 targetPosition)
     {
-        // Cria uma cópia "fantasma" da peça para animar
+        Vector3 startPosition = icone.position;
+        float elapsedTime = 0f;
+        float duration = duracaoAnimacao / 2; // Animação mais rápida para a esteira
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            icone.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / duration);
+            yield return null;
+        }
+        // Garante a posição final
+        icone.position = targetPosition;
+    }
+
+    IEnumerator AnimarPecaParaBandeja(Vector3 startPosition, Sprite spriteDaPeca, int targetSlotIndex)
+    {
         GameObject pecaFantasma = new GameObject("PecaAnimada");
         Image imgFantasma = pecaFantasma.AddComponent<Image>();
         imgFantasma.sprite = spriteDaPeca;
 
         RectTransform rtFantasma = pecaFantasma.GetComponent<RectTransform>();
         rtFantasma.SetParent(rootCanvas.transform, true);
-        rtFantasma.sizeDelta = new Vector2(50, 50); // Pode precisar de ajuste
+        rtFantasma.sizeDelta = new Vector2(50, 50);
         rtFantasma.position = startPosition;
 
-        // Pega a posição do último slot preenchido na bandeja
-        int targetSlotIndex = Armazem.Count - 1;
         Vector3 endPosition = armazemUIParent.GetChild(targetSlotIndex).position;
 
         float elapsedTime = 0f;
@@ -271,7 +298,9 @@ public class GridController : MonoBehaviour
             yield return null;
         }
 
-        Destroy(pecaFantasma); // Destrói a cópia
+        Destroy(pecaFantasma);
+        // Atualiza a bandeja DEPOIS que a peça fantasma é destruída
+        AtualizarUIArmazem();
     }
 
     void AtualizarVisualsDoGrid()

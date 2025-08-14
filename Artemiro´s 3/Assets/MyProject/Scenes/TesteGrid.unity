@@ -1531,14 +1531,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelGroupAtual: {fileID: 11400000, guid: 05cc7e83705c533459a967a0a90d7575, type: 2}
-  tempoInicialDoNivel: 20
+  tempoInicialDoNivel: 100
   relogioVisual: {fileID: 1398369627}
   boardContainer: {fileID: 42430238}
   armazemUIParent: {fileID: 98815071}
   painelVitoria: {fileID: 260816301}
   painelDerrota: {fileID: 584852935}
-  duracaoAnimacao: 0.4
-  delayAposCombinacao: 0.3
+  duracaoAnimacao: 0.1
+  delayAposCombinacao: 0.2
   slotPrefab: {fileID: 1567658956690581314, guid: 79e1fb3de915e0a4798b00529c28b118, type: 3}
   monstroIconPrefab: {fileID: 3389938260265846616, guid: ac465bde4fe1f244a80b2903da740086, type: 3}
   monstroSprites:
