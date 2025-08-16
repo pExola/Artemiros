@@ -1556,7 +1556,7 @@ MonoBehaviour:
   graphicRaycaster: {fileID: 826320831}
   eventSystem: {fileID: 1204997790}
   rootCanvas: {fileID: 826320833}
-  estagioParaVisualizar: 0
+  estagioParaVisualizar: 1
   Armazem: []
 --- !u!4 &1619770017
 Transform:
