@@ -56,5 +56,9 @@ MonoBehaviour:
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
   TamanhoInventario: 7
-  BisCoords: []
+  BisCoords:
+  - x1: 1
+    y1: 0
+    x2: 2
+    y2: 0
   TrisCoords: []

@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
+using Unity.Properties;
 
 /// <summary>
 /// Classe principal que controla toda a lógica do jogo.
@@ -153,6 +154,10 @@ public class GridController : MonoBehaviour
         }
 
         LevelData nivelData = levelGroupAtual.estagios[indiceEstagio];
+        Debug.Log($"Iniciando Estágio {indiceEstagio + 1}: {nivelData.name}");
+        foreach (var bis in nivelData.BisCoords)
+            Debug.Log($"bis {bis.x1},{bis.y1} - {bis.x2},{bis.y2}");
+
         Armazem.Clear();
         AtualizarUIArmazem();
 
@@ -184,6 +189,7 @@ public class GridController : MonoBehaviour
                 int linhaDoLayout = y;
                 LevelData.TileConfig tile = nivelData.layoutDoGrid[linhaDoLayout].colunas[x];
 
+                
                 // 1. Instancia o "Prefab Combo"
                 GameObject slotObj = Instantiate(slotPrefab, boardContainer);
                 slotObj.name = $"Slot ({x},{y})";
@@ -207,22 +213,6 @@ public class GridController : MonoBehaviour
                 }
                 else
                 {
-                    /*Sprite spriteParaMostrar = null;
-                    switch (tile.tipo)
-                    {
-                        case LevelData.TipoDeTile.Monstro:
-                            // ATENÇÃO: A forma de pegar o sprite pode precisar de ajuste
-                            // Exemplo: O sprite da caixa está no índice 6 da lista monstroSprites
-                            spriteParaMostrar = tile.escondido ? monstroSprites[6] : monstroSprites[tile.corDoMonstro];
-                            break;
-                        case LevelData.TipoDeTile.Parede:
-                            spriteParaMostrar = monstroSprites[7]; // Exemplo: sprite da parede
-                            break;
-                        case LevelData.TipoDeTile.Gerador:
-                            spriteParaMostrar = monstroSprites[8]; // Exemplo: sprite do gerador
-                            break;
-                    }
-                    pecaImage.sprite = spriteParaMostrar;*/
 
                     // Configura os dados do monstro com base no ScriptableObject
                     monstroComponent.posicaoGrid = new Tuple<int, int>(x, y);
@@ -243,6 +233,39 @@ public class GridController : MonoBehaviour
                 }
             }
         }
+        // Agora vou acessar todos os monstros e adicionar os bis e tris nessa paradinha aqui
+
+        for (int i = 0; i < nivelData.BisCoords.Count; i++)
+        {
+            LevelData.BisData monstro1 = nivelData.BisCoords[i];
+
+            Monstro a, b;
+            a = Monstros[monstro1.x1][monstro1.y1];
+            b = Monstros[monstro1.x2][monstro1.y2];
+
+            a.segundaParte = b;
+            b.segundaParte = a;
+        }
+
+        for(int i = 0; i < nivelData.TrisCoords.Count; i++)
+        {
+            LevelData.TrisData monstro1 = nivelData.TrisCoords[i];
+
+            Monstro a, b,c;
+            a = Monstros[monstro1.x1][monstro1.y1];
+            b = Monstros[monstro1.x2][monstro1.y2];
+            c = Monstros[monstro1.x3][monstro1.y3];
+            a.segundaParte = b;
+            a.terceiraParte = c;
+
+            b.segundaParte = a;
+            b.terceiraParte = c;
+
+            c.segundaParte = a;
+            c.terceiraParte = b;
+        }
+
+
         // Após construir o grid, atualiza o visual de todas as peças (bloqueado/desbloqueado).
         AtualizarVisualsDoGrid();
     }
@@ -694,6 +717,7 @@ public class GridController : MonoBehaviour
             for (int x = 0; x < gridWidth; x++)
             {
                 Monstro monstro = Monstros[x][y];
+
 
                 // Se não houver monstro nesta célula, pula para a próxima
                 if (monstro == null) continue;
