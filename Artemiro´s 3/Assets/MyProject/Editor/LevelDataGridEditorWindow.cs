@@ -282,6 +282,14 @@ public class LevelDataGridEditorWindow : EditorWindow
         {
             SaveListsToAsset();
             EditorUtility.SetDirty(levelData);
+            AssetDatabase.SaveAssets(); // <-- Adicione esta linha
+            Debug.Log("Bis/Tris salvos por coordenadas!");
+        }
+        if(GUI.changed)
+        {
+            SaveListsToAsset();
+            EditorUtility.SetDirty(levelData);
+            AssetDatabase.SaveAssets(); // <-- Adicione esta linha
             Debug.Log("Bis/Tris salvos por coordenadas!");
         }
     }
@@ -303,8 +311,10 @@ public class LevelDataGridEditorWindow : EditorWindow
     {
         if (levelData != null)
         {
-            levelData.BisCoords = new List<LevelData.BisData>(bisList);
-            levelData.TrisCoords = new List<LevelData.TrisData>(trisList);
+            levelData.BisCoords.Clear();
+            levelData.BisCoords.AddRange(bisList);
+            levelData.TrisCoords.Clear();
+            levelData.TrisCoords.AddRange(trisList);
         }
     }
 

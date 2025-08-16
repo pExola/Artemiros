@@ -56,21 +56,29 @@ public class LevelDataEditor : Editor
             for (int x = 0; x < novaLargura; x++)
             {
                 var tile = data.layoutDoGrid[y].colunas[x];
-                tile.tipo = (LevelData.TipoDeTile)EditorGUILayout.EnumPopup(tile.tipo, GUILayout.Width(60));
+                EditorGUILayout.BeginVertical();
+
+                tile.tipo = (LevelData.TipoDeTile)EditorGUILayout.EnumPopup(tile.tipo, GUILayout.Width(50));
                 if (tile.tipo == LevelData.TipoDeTile.Monstro)
                 {
-                    EditorGUILayout.BeginHorizontal();
+                    
+                    EditorGUILayout.BeginHorizontal(GUILayout.Width(10));
+
                     tile.corDoMonstro = EditorGUILayout.IntField(tile.corDoMonstro, GUILayout.Width(30));
                     tile.corDoMonstro = Mathf.Max(0, tile.corDoMonstro);
                     tile.escondido = EditorGUILayout.Toggle(tile.escondido, GUILayout.Width(16));
                     EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.LabelField($"(x:{x},y:{y})", GUILayout.Width(50));
                 }
                 else
                 {
+                    GUILayout.Label($"({x},{y})", GUILayout.Width(50));
                     tile.corDoMonstro = 0;
                     tile.escondido = false;
                 }
                 data.layoutDoGrid[y].colunas[x] = tile;
+                EditorGUILayout.EndVertical();
+
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -91,26 +99,38 @@ public class LevelDataEditor : Editor
             }
             bisLoaded = true;
         }
-
+        EditorGUILayout.BeginHorizontal();
         // Lista de Bis editável
         for (int i = 0; i < bisTemp.Count; i++)
         {
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginVertical();
             GUILayout.Label($"Bis {i+1}", GUILayout.Width(40));
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("x:",GUILayout.Width(10));
+            var x1 = EditorGUILayout.IntField(bisTemp[i].x1, GUILayout.Width(25));
+            GUILayout.Label("y", GUILayout.Width(10));
+            var y1 = EditorGUILayout.IntField(bisTemp[i].y1, GUILayout.Width(25));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("x:", GUILayout.Width(10));
+            var x2 = EditorGUILayout.IntField(bisTemp[i].x2, GUILayout.Width(25));
+            GUILayout.Label("y:", GUILayout.Width(10));
+            var y2 = EditorGUILayout.IntField(bisTemp[i].y2, GUILayout.Width(25));
+            EditorGUILayout.EndHorizontal();
             bisTemp[i] = new ParPosicoes
             {
-                x1 = EditorGUILayout.IntField(bisTemp[i].x1, GUILayout.Width(25)),
-                y1 = EditorGUILayout.IntField(bisTemp[i].y1, GUILayout.Width(25)),
-                x2 = EditorGUILayout.IntField(bisTemp[i].x2, GUILayout.Width(25)),
-                y2 = EditorGUILayout.IntField(bisTemp[i].y2, GUILayout.Width(25)),
+                
+                x1 = x1,y1 = y1,x2 = x2,y2 = y2
             };
             if (GUILayout.Button("Remover", GUILayout.Width(60)))
             {
                 bisTemp.RemoveAt(i);
                 i--;
             }
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
         }
+        EditorGUILayout.EndHorizontal();
         if (GUILayout.Button("Adicionar Bis"))
         {
             bisTemp.Add(new ParPosicoes());
@@ -132,18 +152,39 @@ public class LevelDataEditor : Editor
             }
             trisLoaded = true;
         }
+        EditorGUILayout.BeginHorizontal();
         for (int i = 0; i < trisTemp.Count; i++)
         {
+            EditorGUILayout.BeginVertical();
+            GUILayout.Label($"Tris {i + 1}", GUILayout.Width(40));
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label($"Tri {i+1}", GUILayout.Width(40));
+            GUILayout.Label("x:", GUILayout.Width(10));
+            var x1 = EditorGUILayout.IntField(trisTemp[i].x1, GUILayout.Width(25));
+            GUILayout.Label("y", GUILayout.Width(10));
+            var y1 = EditorGUILayout.IntField(trisTemp[i].y1, GUILayout.Width(25));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("x:", GUILayout.Width(10));
+            var x2 = EditorGUILayout.IntField(trisTemp[i].x2, GUILayout.Width(25));
+            GUILayout.Label("y:", GUILayout.Width(10));
+            var y2 = EditorGUILayout.IntField(trisTemp[i].y2, GUILayout.Width(25));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("x:", GUILayout.Width(10));
+            var x3 = EditorGUILayout.IntField(trisTemp[i].x2, GUILayout.Width(25));
+            GUILayout.Label("y:", GUILayout.Width(10));
+            var y3 = EditorGUILayout.IntField(trisTemp[i].y2, GUILayout.Width(25));
+            EditorGUILayout.EndHorizontal();
             trisTemp[i] = new TrioPosicoes
             {
-                x1 = EditorGUILayout.IntField(trisTemp[i].x1, GUILayout.Width(25)),
-                y1 = EditorGUILayout.IntField(trisTemp[i].y1, GUILayout.Width(25)),
-                x2 = EditorGUILayout.IntField(trisTemp[i].x2, GUILayout.Width(25)),
-                y2 = EditorGUILayout.IntField(trisTemp[i].y2, GUILayout.Width(25)),
-                x3 = EditorGUILayout.IntField(trisTemp[i].x3, GUILayout.Width(25)),
-                y3 = EditorGUILayout.IntField(trisTemp[i].y3, GUILayout.Width(25)),
+                x1 = x1 ,
+                y1 = y1 ,
+                x2 = x2 ,
+                y2 = y2 ,
+                x3 = x3 ,
+                y3 = y3,
             };
             if (GUILayout.Button("Remover", GUILayout.Width(60)))
             {
@@ -152,6 +193,7 @@ public class LevelDataEditor : Editor
             }
             EditorGUILayout.EndHorizontal();
         }
+        EditorGUILayout.EndHorizontal();
         if (GUILayout.Button("Adicionar Tri"))
         {
             trisTemp.Add(new TrioPosicoes());
