@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
 using Unity.Properties;
+using UnityEditor.Tilemaps;
 
 /// <summary>
 /// Classe principal que controla toda a lógica do jogo.
@@ -44,15 +45,21 @@ public class GridController : MonoBehaviour
 
     [Tooltip("Sprite da caixa que é revelada quando um monstro é removido.")]
     public Sprite spriteCaixa;
+    public Sprite spriteParede;
 
     [Tooltip("CARALHO, ISSO É A SPRITE QUE FICA NA BANDEJA!!!!!!")]
     public List<Sprite> monstroSpritesBandeira;
 
+
     [Tooltip("Lista de sprites para as peças em estado DESBLOQUEADO.")]
     public List<Sprite> spritesDesbloqueados; 
+    public List<Sprite> spritesDesbloqueadosBis; 
+    public List<Sprite> spritesDesbloqueadosTris; 
 
     [Tooltip("Lista de sprites para as peças em estado BLOQUEADO.")]
     public List<Sprite> spritesBloqueados;
+    public List<Sprite> spritesBloqueadosBis;
+    public List<Sprite> spritesBloqueadosTris;
 
     [Header("Referências de Sistema")]
     public GraphicRaycaster graphicRaycaster;
@@ -287,6 +294,17 @@ public class GridController : MonoBehaviour
             // O clique agora inicia a Corrotina de JOGADA, não apenas de animação
             StartCoroutine(ExecutarJogada(monstroClicado));
         }
+    }
+
+
+    public int PegarTipoDeMonstro(Monstro monstro)
+    {
+        if (monstro.terceiraParte is not null)
+            return 3;
+        else if (monstro.segundaParte is not null)
+            return 2;
+        else
+            return 1;
     }
 
     /// <summary>
@@ -717,10 +735,42 @@ public class GridController : MonoBehaviour
             for (int x = 0; x < gridWidth; x++)
             {
                 Monstro monstro = Monstros[x][y];
-
+                
 
                 // Se não houver monstro nesta célula, pula para a próxima
                 if (monstro == null) continue;
+                int tipoMonstro = PegarTipoDeMonstro(monstro);
+                if( tipoMonstro == 2)
+                {
+                    // LOGICA DO BI
+                    //Verificar se alguma das 2 partes estão livres
+                    bool primeiraParteLivre = PodeRemover(monstro);
+                    bool segundaParteLivre = PodeRemover(monstro.segundaParte);
+                    // Se alguma das partes estiver livre, a peça é desbloqueada
+                    bool estaJoia= primeiraParteLivre || segundaParteLivre;
+                    // Define o sprite correto para a peça de 2 partes
+                    Image pecaImageMonstroPrincipal = monstro.GetComponent<Image>();
+                    if (pecaImageMonstroPrincipal == null) continue;
+                    Image pecaImageSegundoMonstro = monstro.segundaParte.GetComponent<Image>();
+                    if (pecaImageSegundoMonstro == null) continue;
+                    // Seleciona a lista de sprites correta (bloqueado ou desbloqueado)
+                    List<Sprite> spriteListBis= estaJoia ? spritesDesbloqueadosBis : spritesBloqueadosBis;
+
+                    // Pega o sprite correto da lista com base na cor/tipo da peça
+
+                    pecaImageMonstroPrincipal.sprite = spriteListBis[monstro.cor];
+                    pecaImageSegundoMonstro.sprite = spriteListBis[monstro.segundaParte.cor];
+
+
+
+
+                }
+                if ( tipoMonstro == 3)
+                {
+                    // LOGICA DO TRI
+                    continue; // Não faz nada para monstros de 3 partes por enquanto
+
+                }
 
                 // Encontra a imagem da peça
                 Image pecaImage = monstro.GetComponent<Image>();
@@ -743,7 +793,7 @@ public class GridController : MonoBehaviour
                 }
                 else if (monstro.cor == -1) // Parede
                 {
-                    spriteParaMostrar = spriteList[7];
+                    spriteParaMostrar = spriteParede;
                 }
                 else
                 {
