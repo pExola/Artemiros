@@ -38,7 +38,14 @@ public class GridController : MonoBehaviour
     [Header("Prefabs")]
     public GameObject slotPrefab;
     public GameObject monstroIconPrefab;
-    public List<Sprite> monstroSprites;
+
+    [Header("Sprites")]
+
+    [Tooltip("Sprite da caixa que é revelada quando um monstro é removido.")]
+    public Sprite spriteCaixa;
+
+    [Tooltip("CARALHO, ISSO É A SPRITE QUE FICA NA BANDEJA!!!!!!")]
+    public List<Sprite> monstroSpritesBandeira;
 
     [Tooltip("Lista de sprites para as peças em estado DESBLOQUEADO.")]
     public List<Sprite> spritesDesbloqueados; 
@@ -227,8 +234,12 @@ public class GridController : MonoBehaviour
                     {
                         geradorComponent.monstrosParaGerar = tile.MonstrosASeremGeradosPeloGerador;
                     }
+                    else if (tile.escondido)
+                    {
 
-                    Monstros[x][y] = monstroComponent;
+                    }
+
+                        Monstros[x][y] = monstroComponent;
                 }
             }
         }
@@ -521,17 +532,29 @@ public class GridController : MonoBehaviour
             }
         }
 
+
+
         // Adicione aqui a verificação para 'terceiraParte' se necessário.
 
+
+
         // Se TODAS as partes da peça têm um caminho livre, ela pode ser removida.
+
+        if (monstro.escondido)
+        {
+            monstro.escondido = false; // Revela a peça
+            return false; // Não remove a peça, apenas revela
+        }
+
         return true;
     }
 
     /// <summary>
     /// Verifica se uma peça em uma posição tem um "caminho de fuga" até a borda de baixo.
+    /// ISSO VERIFICA SÓ OS LADOS, NÃO O CAMINHO
     /// </summary>
 
-    private bool TemCaminhoLivre(int x, int y)
+    private bool TemCaminhoLivre(int x, int y) // x = 4 , y = 4
     {
         if (y == 0)
         {
@@ -545,13 +568,29 @@ public class GridController : MonoBehaviour
         {
             int vizinhoX = x + dx[i];
             int vizinhoY = y + dy[i];
-
+            // [3,3] [3,5] [5,3] [ 5 ,5 ]
             if (vizinhoX >= 0 && vizinhoX < gridWidth && vizinhoY >= 0 && vizinhoY < gridHeight)
             {
                 if (Monstros[vizinhoX][vizinhoY] == null)
                 {
+                    //if (BuscaPorCaminhoAteBorda(vizinhoX, vizinhoY) && Monstros[x][y].escondido )
+                    //{
+                    //    // E caso seja uma peça de caixa, vai liberar a caixa. E mostrar para oq veio ao mundo!!!!
+                    //    if (Monstros[x][y].escondido)
+                    //    {
+                    //        Monstros[x][y].escondido = false;
+                    //        Monstros[x][y].GetComponent<Image>().sprite = spriteCaixa; // Sprite da caixa revelada
+                    //    }
+                    //    return false; // Ele n vai ser removido, mas vai liberar a caixa, pro próximo click porra!!!!!
+                    //}
                     if (BuscaPorCaminhoAteBorda(vizinhoX, vizinhoY))
                     {
+                        // Se encontrou um caminho livre até a borda de baixo, retorna verdadeiro.
+                        if (Monstros[x][y].escondido)
+                        {
+                            Monstros[x][y].escondido = false;
+                            Monstros[x][y].GetComponent<Image>().sprite = spriteCaixa; // Sprite da caixa revelada
+                        }
                         return true;
                     }
                 }
@@ -564,6 +603,7 @@ public class GridController : MonoBehaviour
 
     /// <summary>
     /// Algoritmo de Busca em Largura (BFS) para encontrar um caminho de células vazias até a borda inferior.
+    /// ESSE É O QUE REALMENTE BUSCA O CAMINHO ATÉ A BORDA!
     /// </summary>
 
     private bool BuscaPorCaminhoAteBorda(int startX, int startY)
@@ -633,7 +673,7 @@ public class GridController : MonoBehaviour
 
                 // Ativa a imagem do slot e define o sprite correto
                 iconImage.enabled = true;
-                iconImage.sprite = monstroSprites[monstroNoSlot.cor];
+                iconImage.sprite = monstroSpritesBandeira[monstroNoSlot.cor];
             }
             else
             {
@@ -675,7 +715,7 @@ public class GridController : MonoBehaviour
                 // Índices 0-5: Cores, 6: Caixa, 7: Parede, 8: Gerador
                 if (monstro.escondido)
                 {
-                    spriteParaMostrar = spriteList[6];
+                    spriteParaMostrar = spriteCaixa;
                 }
                 else if (monstro.cor == -1) // Parede
                 {
