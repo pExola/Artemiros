@@ -1542,6 +1542,7 @@ MonoBehaviour:
   slotPrefab: {fileID: 1567658956690581314, guid: 79e1fb3de915e0a4798b00529c28b118, type: 3}
   monstroIconPrefab: {fileID: 3389938260265846616, guid: ac465bde4fe1f244a80b2903da740086, type: 3}
   spriteCaixa: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  spriteParede: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
   monstroSpritesBandeira:
   - {fileID: -1317908435499591305, guid: f5ca37239f18d634887244cafc9c0b99, type: 3}
   - {fileID: -8759933779451299138, guid: fced102f22b64ee428d533b0d415fd37, type: 3}
@@ -1550,10 +1551,23 @@ MonoBehaviour:
   - {fileID: -1317908435499591305, guid: f5ca37239f18d634887244cafc9c0b99, type: 3}
   - {fileID: -8759933779451299138, guid: fced102f22b64ee428d533b0d415fd37, type: 3}
   - {fileID: -7595097679768293466, guid: b7348f64fc8942247bc49f3d47c9cc50, type: 3}
+  spritesDesbloqueadosBis:
+  - {fileID: -7072326494202076488, guid: 6323679f0d7e2f9479bec12c6d60115f, type: 3}
+  - {fileID: -2682129291186468769, guid: 0ed43ad7d1d63554e8e3ff7e1d8da335, type: 3}
+  - {fileID: 5121157847784640221, guid: 0024db3ecc9c9a244be6209cae52a1ce, type: 3}
+  spritesDesbloqueadosTris:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   spritesBloqueados:
   - {fileID: 7014083092447763338, guid: a15bb7b0f46274446a3e2070d35f7935, type: 3}
   - {fileID: -173952802126614883, guid: 9404b25419892e94d9199303d63cdbf8, type: 3}
   - {fileID: 5844828248733720401, guid: 53f45f0b68bd1cb4aa6d5cc984e57eca, type: 3}
+  spritesBloqueadosBis:
+  - {fileID: -7363824729871912646, guid: 0bb75b5775a9f1e4ca9368387b32a1b0, type: 3}
+  - {fileID: 5687655864913845116, guid: 7eb8f3de4155ae8459f340513209f93d, type: 3}
+  - {fileID: 7279494655857463537, guid: 7e418d592741a124a8db064c61d7545a, type: 3}
+  spritesBloqueadosTris: []
   graphicRaycaster: {fileID: 826320831}
   eventSystem: {fileID: 1204997790}
   rootCanvas: {fileID: 826320833}

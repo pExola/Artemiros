@@ -745,25 +745,36 @@ public class GridController : MonoBehaviour
                     // LOGICA DO BI
                     //Verificar se alguma das 2 partes estão livres
                     bool primeiraParteLivre = PodeRemover(monstro);
+
                     bool segundaParteLivre = PodeRemover(monstro.segundaParte);
+                    Debug.Log($"Segunda parte do monstrão {monstro.segundaParte.posicaoGrid}  e a primeira aqui {monstro.posicaoGrid}");
                     // Se alguma das partes estiver livre, a peça é desbloqueada
                     bool estaJoia= primeiraParteLivre || segundaParteLivre;
                     // Define o sprite correto para a peça de 2 partes
                     Image pecaImageMonstroPrincipal = monstro.GetComponent<Image>();
-                    if (pecaImageMonstroPrincipal == null) continue;
+                    if (pecaImageMonstroPrincipal == null) { 
+                        Debug.Log("A imagem do monstro principal é nula");
+                        continue; 
+                    }
                     Image pecaImageSegundoMonstro = monstro.segundaParte.GetComponent<Image>();
-                    if (pecaImageSegundoMonstro == null) continue;
+                    if (pecaImageSegundoMonstro == null)
+                    {
+                        Debug.Log("A imagem do monstro secundario é nula");
+                        continue;
+                    }
                     // Seleciona a lista de sprites correta (bloqueado ou desbloqueado)
                     List<Sprite> spriteListBis= estaJoia ? spritesDesbloqueadosBis : spritesBloqueadosBis;
-
-                    // Pega o sprite correto da lista com base na cor/tipo da peça
+                    Debug.Log("Sim está joia para liberar o bis para a destrução");
+                    // Pega o sprite correto da lista com base na ecor/tipo da peça
 
                     pecaImageMonstroPrincipal.sprite = spriteListBis[monstro.cor];
+                    Debug.Log($"Imagem selecionada para o bis principal foi {monstro.cor.ToString()}");
                     pecaImageSegundoMonstro.sprite = spriteListBis[monstro.segundaParte.cor];
+                    Debug.Log($"Imagem selecionada para o bis secundario foi {monstro.segundaParte.cor.ToString()}");
 
 
 
-
+                    continue;
                 }
                 if ( tipoMonstro == 3)
                 {
