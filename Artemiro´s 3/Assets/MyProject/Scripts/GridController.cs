@@ -236,7 +236,7 @@ public class GridController : MonoBehaviour
 
                     }
 
-                        Monstros[x][y] = monstroComponent;
+                    Monstros[x][y] = monstroComponent;
                 }
             }
         }
@@ -296,6 +296,9 @@ public class GridController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Função que retorna o tipo de monstro 
+    /// </summary>
 
     public int PegarTipoDeMonstro(Monstro monstro)
     {
@@ -313,6 +316,7 @@ public class GridController : MonoBehaviour
 
     IEnumerator ExecutarJogada(Monstro monstro)
     {
+
         isAnimating = true;
 
         Vector3 startPosition = monstro.transform.position;
@@ -435,6 +439,17 @@ public class GridController : MonoBehaviour
 
     void RemoverDoGrid(Monstro monstro)
     {
+        int tipoMonstro = PegarTipoDeMonstro(monstro);
+        if ( tipoMonstro == 2)
+        {
+            Monstro secundario = monstro.segundaParte;
+            Monstros[secundario.posicaoGrid.Item1][secundario.posicaoGrid.Item2] = null;
+            Image img_secundario = secundario.GetComponent<Image>();
+            if (img_secundario != null)
+            {
+                img_secundario.enabled = false;
+            }
+        }
         Monstros[monstro.posicaoGrid.Item1][monstro.posicaoGrid.Item2] = null;
 
         Image img = monstro.GetComponent<Image>();
@@ -533,7 +548,7 @@ public class GridController : MonoBehaviour
     void ChecarEEliminarGrupos()
     {
         var gruposParaRemover = Armazem.GroupBy(m => m.cor)
-                                     .Where(g => g.Count() >= 3)
+                                     .Where(g => g.Sum(m=> PegarTipoDeMonstro(m)) >= 3)
                                      .ToList();
         if (gruposParaRemover.Any())
         {
@@ -712,9 +727,11 @@ public class GridController : MonoBehaviour
                 // Pega o monstro correspondente da lista de dados
                 Monstro monstroNoSlot = Armazem[i];
 
+
                 // Ativa a imagem do slot e define o sprite correto
                 iconImage.enabled = true;
-                iconImage.sprite = monstroSpritesBandeira[monstroNoSlot.cor];
+                iconImage.sprite = PegarTipoDeMonstro(monstroNoSlot) == 1 ? monstroSpritesBandeira[monstroNoSlot.cor] : spritesDesbloqueadosBis[monstroNoSlot.cor];
+
             }
             else
             {
@@ -771,6 +788,7 @@ public class GridController : MonoBehaviour
                     Debug.Log($"Imagem selecionada para o bis principal foi {monstro.cor.ToString()}");
                     pecaImageSegundoMonstro.sprite = spriteListBis[monstro.segundaParte.cor];
                     Debug.Log($"Imagem selecionada para o bis secundario foi {monstro.segundaParte.cor.ToString()}");
+                    
 
 
 

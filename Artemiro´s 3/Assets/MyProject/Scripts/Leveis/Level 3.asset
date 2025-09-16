@@ -26,6 +26,10 @@ MonoBehaviour:
       corDoMonstro: 2
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 2
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   - colunas:
     - tipo: 1
       corDoMonstro: 2
@@ -33,6 +37,10 @@ MonoBehaviour:
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
       corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 1
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
@@ -52,6 +60,10 @@ MonoBehaviour:
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
+    - tipo: 1
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   - colunas:
     - tipo: 0
       corDoMonstro: 0
@@ -65,6 +77,22 @@ MonoBehaviour:
       corDoMonstro: 0
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
+    - tipo: 0
+      corDoMonstro: 0
+      escondido: 0
+      MonstrosASeremGeradosPeloGerador: 
   TamanhoInventario: 7
-  BisCoords: []
+  BisCoords:
+  - x1: 0
+    y1: 0
+    x2: 1
+    y2: 0
+  - x1: 2
+    y1: 0
+    x2: 3
+    y2: 0
+  - x1: 3
+    y1: 1
+    x2: 2
+    y2: 1
   TrisCoords: []
