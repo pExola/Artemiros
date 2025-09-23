@@ -36,9 +36,12 @@ public class GridController : MonoBehaviour
     public float duracaoAnimacao = 0.3f;
     [Tooltip("Pausa em segundos após uma combinação ser feita, antes das peças sumirem.")]
     public float delayAposCombinacao = 0.25f;
+    [Tooltip("Ajuste fino para a posição X das peças Bis horizontais.")]
+    public float deslocamentoHorizontalBis = -10f;
 
     [Header("Prefabs")]
     public GameObject slotPrefab;
+    public GameObject slotBisPrefab;
     public GameObject monstroIconPrefab;
 
     [Header("Sprites")]
@@ -49,7 +52,6 @@ public class GridController : MonoBehaviour
 
     [Tooltip("CARALHO, ISSO É A SPRITE QUE FICA NA BANDEJA!!!!!!")]
     public List<Sprite> monstroSpritesBandeira;
-
 
     [Tooltip("Lista de sprites para as peças em estado DESBLOQUEADO.")]
     public List<Sprite> spritesDesbloqueados; 
@@ -186,6 +188,13 @@ public class GridController : MonoBehaviour
         for (int i = 0; i < gridWidth; i++)
             Monstros.Add(new List<Monstro>(new Monstro[gridHeight]));
 
+        HashSet<Tuple<int, int>> bisCoordinates = new HashSet<Tuple<int, int>>();
+        foreach (var bisData in nivelData.BisCoords)
+        {
+            bisCoordinates.Add(new Tuple<int, int>(bisData.x1, bisData.y1));
+            bisCoordinates.Add(new Tuple<int, int>(bisData.x2, bisData.y2));
+        }
+
         // Itera por cada coordenada para criar os "Slots" (célula + peça).
         for (int y = 0; y < gridHeight; y++)
         {
@@ -196,10 +205,11 @@ public class GridController : MonoBehaviour
                 int linhaDoLayout = y;
                 LevelData.TileConfig tile = nivelData.layoutDoGrid[linhaDoLayout].colunas[x];
 
-                
+                bool isBis = bisCoordinates.Contains(new Tuple<int, int>(x, y));
+                GameObject prefabParaInstanciar = isBis ? slotBisPrefab : slotPrefab;
                 // 1. Instancia o "Prefab Combo"
-                GameObject slotObj = Instantiate(slotPrefab, boardContainer);
-                slotObj.name = $"Slot ({x},{y})";
+                GameObject slotObj = Instantiate(prefabParaInstanciar, boardContainer);
+                slotObj.name = $"Slot ({x},{y})" + (isBis ? " - BIS" : "");
 
                 // 2. Encontra as partes dentro do prefab instanciado (use os nomes exatos que você deu)
                 Transform pecaTransform = slotObj.transform.Find("Peca_Monstro");
@@ -272,6 +282,53 @@ public class GridController : MonoBehaviour
             c.terceiraParte = b;
         }
 
+        float cellWidth = gridLayout.cellSize.x;
+        float cellHeight = gridLayout.cellSize.y;
+        float spacingX = gridLayout.spacing.x;
+        float spacingY = gridLayout.spacing.y;
+
+        // Etapa 3: Percorre a lista de Bis novamente para ajustar o visual.
+        foreach (var bisData in nivelData.BisCoords)
+        {
+            Monstro monstroA = Monstros[bisData.x1][bisData.y1];
+            Monstro monstroB = Monstros[bisData.x2][bisData.y2];
+
+            if (monstroA == null || monstroB == null) continue;
+
+            // Define qual peça será a principal (visível) e qual será a secundária (invisível).
+            // A principal será sempre a da Esquerda (se horizontal) ou a de Baixo (se vertical).
+            bool isHorizontal = monstroA.posicaoGrid.Item2 == monstroB.posicaoGrid.Item2;
+            Monstro principal = (isHorizontal && monstroA.posicaoGrid.Item1 < monstroB.posicaoGrid.Item1) || (!isHorizontal && monstroA.posicaoGrid.Item2 < monstroB.posicaoGrid.Item2) ? monstroA : monstroB;
+            Monstro secundario = (principal == monstroA) ? monstroB : monstroA;
+
+            // Esconde a imagem da peça secundária.
+            Image imgSecundaria = secundario.GetComponent<Image>();
+            if (imgSecundaria != null)
+            {
+                imgSecundaria.enabled = false;
+            }
+
+            // Pega o RectTransform da peça principal para manipulação.
+            RectTransform rtPrincipal = principal.GetComponent<RectTransform>();
+            if (isHorizontal)
+            {
+                rtPrincipal.anchoredPosition = new Vector2((cellWidth / 2 + spacingX / 2) + deslocamentoHorizontalBis, 0);
+            }
+            else // Vertical
+            {
+                rtPrincipal.anchoredPosition = new Vector2(0, cellHeight / 2 + spacingY / 2);
+            }
+            
+            if (isHorizontal)
+            {
+                rtPrincipal.sizeDelta = new Vector2((cellWidth * 2) + spacingX, cellHeight);
+            }
+            else 
+            {
+                rtPrincipal.sizeDelta = new Vector2(cellWidth, (cellHeight * 2) + spacingY);
+            }
+
+        }
 
         // Após construir o grid, atualiza o visual de todas as peças (bloqueado/desbloqueado).
         AtualizarVisualsDoGrid();

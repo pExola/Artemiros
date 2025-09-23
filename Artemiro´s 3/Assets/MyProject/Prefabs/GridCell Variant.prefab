@@ -10,11 +10,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 490146680020874488, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.95
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 490146680020874488, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.29
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 490146680020874488, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
       propertyPath: m_LocalPosition.z
@@ -51,6 +51,10 @@ PrefabInstance:
     - target: {fileID: 4989441650701787126, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
       propertyPath: m_Name
       value: GridCell Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396040943714049778, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
+      propertyPath: m_Color.a
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5405892396587614471, guid: 95645ecb3bbe3ed418c44b09f6a9c511, type: 3}
       propertyPath: m_Enabled
