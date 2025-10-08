@@ -43,6 +43,8 @@ public class GridController : MonoBehaviour
     public GameObject slotPrefab;
     public GameObject slotBisPrefab;
     public GameObject monstroIconPrefab;
+    public GameObject iconeBandejaNormalPrefab;
+    public GameObject iconeBandejaBisPrefab;
 
     [Header("Sprites")]
 
@@ -376,40 +378,42 @@ public class GridController : MonoBehaviour
 
         isAnimating = true;
 
+        // 1. Guarda a posição inicial e o sprite para a animação.
         Vector3 startPosition = monstro.transform.position;
         Sprite spriteDaPeca = monstro.GetComponent<Image>().sprite;
 
-        // --- INÍCIO DA NOVA LÓGICA DE "ESTEIRA" ---
-
-        // 1. SIMULAÇÃO: Descobre qual seria o índice final da peça na bandeja ordenada.
-        List<Monstro> listaSimulada = new List<Monstro>(Armazem);
-        listaSimulada.Add(monstro);
-        listaSimulada.Sort((a, b) => a.cor.CompareTo(b.cor));
-        int indiceFinal = listaSimulada.IndexOf(monstro);
-
-        // 2. LÓGICA DE JOGO: Atualiza os dados imediatamente.
+        // 2. Atualiza a lógica do jogo (os dados).
         AdicionarAoArmazem(monstro);
         RemoverDoGrid(monstro);
         AtualizarVisualsDoGrid();
 
-        // 3. ANIMAÇÃO DA "ESTEIRA": Move as peças que estão à direita do novo slot.
-        for (int i = indiceFinal; i < Armazem.Count - 1; i++)
+        // 3. ATUALIZA A UI DA BANDEJA IMEDIATAMENTE.
+        // Isso cria todos os ícones, incluindo o novo.
+        AtualizarUIArmazem();
+
+        // 4. Encontra o ícone que acabamos de adicionar e o esconde temporariamente.
+        int indiceFinal = Armazem.IndexOf(monstro);
+        if (indiceFinal < 0 || indiceFinal >= armazemUIParent.childCount)
         {
-            Transform iconeParaMover = armazemUIParent.GetChild(i);
-            Vector3 posicaoAlvo = armazemUIParent.GetChild(i + 1).position;
-            StartCoroutine(AnimarIconeDaBandeja(iconeParaMover, posicaoAlvo));
+            // Se algo deu errado e não encontramos o monstro, cancela a animação para evitar erros.
+            Debug.LogError("Não foi possível encontrar o monstro recém-adicionado na bandeja. Verifique a lógica de AdicionarAoArmazem.");
+            isAnimating = false;
+            yield break;
         }
 
-        // Pequena pausa para a esteira se mover
-        if (Armazem.Count > 1) yield return new WaitForSeconds(duracaoAnimacao / 2);
+        Transform iconeFinal = armazemUIParent.GetChild(indiceFinal);
+        Image imagemDoIconeFinal = iconeFinal.GetComponent<Image>();
 
-        // 4. ANIMAÇÃO DA PEÇA CAINDO: Anima a peça para o slot que foi esvaziado.
-        yield return StartCoroutine(AnimarPecaParaBandeja(startPosition, spriteDaPeca, indiceFinal));
+        if (imagemDoIconeFinal != null)
+        {
+            imagemDoIconeFinal.enabled = false; // Esconde o ícone para a animação acontecer.
+        }
 
-        // --- FIM DA NOVA LÓGICA ---
+        // 5. Inicia a animação, que agora sabe a posição final correta.
+        yield return StartCoroutine(AnimarPecaParaBandeja(startPosition, spriteDaPeca, iconeFinal));
 
-        // 5. LÓGICA PÓS-JOGADA
-        bool combinacaoFeita = Armazem.GroupBy(m => m.cor).Any(g => g.Count() >= 3);
+        // 6. Lógica pós-jogada.
+        bool combinacaoFeita = Armazem.GroupBy(m => m.cor).Any(g => g.Sum(m => PegarTipoDeMonstro(m)) >= 3);
         if (combinacaoFeita)
         {
             yield return new WaitForSeconds(delayAposCombinacao);
@@ -445,7 +449,7 @@ public class GridController : MonoBehaviour
     /// Corrotina que anima uma peça "fantasma" da sua posição no grid até a bandeja.
     /// </summary>
 
-    IEnumerator AnimarPecaParaBandeja(Vector3 startPosition, Sprite spriteDaPeca, int targetSlotIndex)
+    IEnumerator AnimarPecaParaBandeja(Vector3 startPosition, Sprite spriteDaPeca, Transform iconeDeDestino)
     {
         GameObject pecaFantasma = new GameObject("PecaAnimada");
         Image imgFantasma = pecaFantasma.AddComponent<Image>();
@@ -453,10 +457,22 @@ public class GridController : MonoBehaviour
 
         RectTransform rtFantasma = pecaFantasma.GetComponent<RectTransform>();
         rtFantasma.SetParent(rootCanvas.transform, true);
-        rtFantasma.sizeDelta = new Vector2(70, 70); // O tamanho pode ser ajustado
+
+        // Adiciona uma verificação aqui também, por segurança.
+        if (iconeDeDestino != null)
+        {
+            rtFantasma.sizeDelta = iconeDeDestino.GetComponent<RectTransform>().sizeDelta;
+        }
+        else
+        {
+            // Se o ícone já foi destruído, usa um tamanho padrão.
+            rtFantasma.sizeDelta = new Vector2(70, 70);
+        }
+
         rtFantasma.position = startPosition;
 
-        Vector3 endPosition = armazemUIParent.GetChild(targetSlotIndex).position;
+        // A posição final precisa ser lida antes que o objeto seja destruído.
+        Vector3 endPosition = (iconeDeDestino != null) ? iconeDeDestino.position : rtFantasma.position;
 
         float elapsedTime = 0f;
         while (elapsedTime < duracaoAnimacao)
@@ -464,16 +480,25 @@ public class GridController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / duracaoAnimacao;
             rtFantasma.position = Vector3.Lerp(startPosition, endPosition, t);
-            rtFantasma.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.5f, t);
+            rtFantasma.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.8f, t);
             yield return null;
         }
 
         Destroy(pecaFantasma);
-        // Atualiza a bandeja DEPOIS que a peça fantasma é destruída
-        AtualizarUIArmazem();
+
+        // --- A CORREÇÃO PRINCIPAL ESTÁ AQUI ---
+        // Antes de tentar acessar o componente, verifica se o objeto ainda existe.
+        if (iconeDeDestino != null)
+        {
+            Image imagemDoIconeFinal = iconeDeDestino.GetComponent<Image>();
+            if (imagemDoIconeFinal != null)
+            {
+                imagemDoIconeFinal.enabled = true;
+            }
+        }
     }
 
-    
+
 
     // --- MÉTODOS DE MANIPULAÇÃO DE DADOS E ESTADO ---
 
@@ -769,31 +794,44 @@ public class GridController : MonoBehaviour
     {
         if (armazemUIParent == null) return;
 
-        // Itera pelos slots da bandeja (Slot_1, Slot_2, etc.)
-        for (int i = 0; i < armazemUIParent.childCount; i++)
+        // 1. Destrói todos os ícones que estão atualmente na bandeja.
+        foreach (Transform child in armazemUIParent)
         {
-            // Pega o transform do slot e a imagem dentro dele
-            Transform slot = armazemUIParent.GetChild(i);
-            Image iconImage = slot.GetComponent<Image>();
+            Destroy(child.gameObject);
+        }
 
-            if (iconImage == null) continue; // Pula se não houver imagem no slot
+        // Se a bandeja estiver vazia, não há mais nada a fazer.
+        if (Armazem.Count == 0) return;
 
-            // Verifica se este slot deve ter um monstro
-            if (i < Armazem.Count)
+        // 2. Itera pela lista de dados 'Armazem' e instancia o prefab correto para cada monstro.
+        foreach (Monstro monstro in Armazem)
+        {
+            GameObject prefabParaInstanciar;
+            Sprite spriteParaMostrar;
+
+            int tipoMonstro = PegarTipoDeMonstro(monstro);
+
+            // Decide qual prefab e qual sprite usar
+            if (tipoMonstro == 2)
             {
-                // Pega o monstro correspondente da lista de dados
-                Monstro monstroNoSlot = Armazem[i];
-
-
-                // Ativa a imagem do slot e define o sprite correto
-                iconImage.enabled = true;
-                iconImage.sprite = PegarTipoDeMonstro(monstroNoSlot) == 1 ? monstroSpritesBandeira[monstroNoSlot.cor] : spritesDesbloqueadosBis[monstroNoSlot.cor];
-
+                prefabParaInstanciar = iconeBandejaBisPrefab;
+                spriteParaMostrar = spritesDesbloqueadosBis[monstro.cor];
             }
-            else
+            else // Tipo 1 (e qualquer outro caso)
             {
-                // Se o slot estiver vazio, apenas desativa a imagem
-                iconImage.enabled = false;
+                prefabParaInstanciar = iconeBandejaNormalPrefab;
+                spriteParaMostrar = monstroSpritesBandeira[monstro.cor];
+            }
+
+            // 3. Instancia o prefab escolhido como filho da bandeja.
+            GameObject novoIcone = Instantiate(prefabParaInstanciar, armazemUIParent);
+            novoIcone.name = $"Icone_{monstro.cor}" + (tipoMonstro == 2 ? "_Bis" : "");
+
+            // 4. Configura a imagem do ícone recém-criado.
+            Image iconeImage = novoIcone.GetComponent<Image>();
+            if (iconeImage != null)
+            {
+                iconeImage.sprite = spriteParaMostrar;
             }
         }
     }
