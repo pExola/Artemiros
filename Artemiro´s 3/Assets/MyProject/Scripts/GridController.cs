@@ -386,11 +386,10 @@ public class GridController : MonoBehaviour
         AdicionarAoArmazem(monstro);
         RemoverDoGrid(monstro);
         AtualizarVisualsDoGrid();
-
         // 3. ATUALIZA A UI DA BANDEJA IMEDIATAMENTE.
         // Isso cria todos os ícones, incluindo o novo.
         AtualizarUIArmazem();
-
+        yield return new WaitForEndOfFrame();
         // 4. Encontra o ícone que acabamos de adicionar e o esconde temporariamente.
         int indiceFinal = Armazem.IndexOf(monstro);
         if (indiceFinal < 0 || indiceFinal >= armazemUIParent.childCount)
