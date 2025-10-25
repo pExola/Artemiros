@@ -860,7 +860,11 @@ public class GridController : MonoBehaviour
                     bool segundaParteLivre = PodeRemover(monstro.segundaParte);
                     Debug.Log($"Segunda parte do monstrão {monstro.segundaParte.posicaoGrid}  e a primeira aqui {monstro.posicaoGrid}");
                     // Se alguma das partes estiver livre, a peça é desbloqueada
-                    bool estaJoia= primeiraParteLivre || segundaParteLivre;
+                    bool estaJoia = primeiraParteLivre || segundaParteLivre;
+
+                    monstro.AtualizarEstadoDeAnimacao(estaJoia);
+                    monstro.segundaParte.AtualizarEstadoDeAnimacao(estaJoia);
+
                     // Define o sprite correto para a peça de 2 partes
                     Image pecaImageMonstroPrincipal = monstro.GetComponent<Image>();
                     if (pecaImageMonstroPrincipal == null) { 
@@ -901,6 +905,8 @@ public class GridController : MonoBehaviour
 
                 // Decide se a peça está bloqueada ou não usando a regra de jogo
                 bool estaLivre = PodeRemover(monstro);
+
+                monstro.AtualizarEstadoDeAnimacao(estaLivre);
 
                 // Seleciona a lista de sprites correta (bloqueado ou desbloqueado)
                 List<Sprite> spriteList = estaLivre ? spritesDesbloqueados : spritesBloqueados;
