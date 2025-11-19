@@ -413,13 +413,13 @@ public class GridController : MonoBehaviour
 
         // 6. Lógica pós-jogada.
         bool combinacaoFeita = Armazem.GroupBy(m => m.cor).Any(g => g.Sum(m => PegarTipoDeMonstro(m)) >= 3);
-        if (combinacaoFeita)
-        {
-            yield return new WaitForSeconds(delayAposCombinacao);
-        }
+        yield return StartCoroutine(ChecarEEliminarGrupos());
 
-        ChecarEEliminarGrupos();
-        VerificarVitoriaDoEstagio();
+        // Verifica se o jogo travou (caso a bandeja encha e não tenha match)
+        if (Armazem.Count == maxArmazem)
+        {
+            VerificarVitoriaDoEstagio();
+        }
 
         isAnimating = false;
     }
@@ -626,13 +626,52 @@ public class GridController : MonoBehaviour
     /// Procura por grupos de 3 ou mais na bandeja, remove-os dos dados e atualiza a UI.
     /// </summary>
 
-    void ChecarEEliminarGrupos()
+    IEnumerator ChecarEEliminarGrupos()
     {
+        // 1. Identifica os grupos (Lógica original mantida)
         var gruposParaRemover = Armazem.GroupBy(m => m.cor)
-                                     .Where(g => g.Sum(m=> PegarTipoDeMonstro(m)) >= 3)
+                                     .Where(g => g.Sum(m => PegarTipoDeMonstro(m)) >= 3)
                                      .ToList();
+
         if (gruposParaRemover.Any())
         {
+            bool animacaoTocou = false;
+
+            // 2. Toca a animação visual ANTES de mexer nos dados
+            foreach (var grupo in gruposParaRemover)
+            {
+                // Pega apenas os 3 primeiros que formam o match
+                List<Monstro> monstrosDoMatch = grupo.Take(3).ToList();
+
+                foreach (var monstro in monstrosDoMatch)
+                {
+                    // Ignora a segunda parte do Bis para não tentar animar o que não existe visualmente
+                    if (monstro.segundaParte != null && Armazem.IndexOf(monstro) > Armazem.IndexOf(monstro.segundaParte))
+                        continue;
+
+                    int indiceVisual = EncontrarIndiceVisualNaBandeja(monstro);
+
+                    if (indiceVisual != -1 && indiceVisual < armazemUIParent.childCount)
+                    {
+                        Transform iconeTransform = armazemUIParent.GetChild(indiceVisual);
+                        Animator anim = iconeTransform.GetComponent<Animator>();
+
+                        if (anim != null)
+                        {
+                            anim.SetTrigger("Combinar"); // <--- O PULO DO GATO
+                            animacaoTocou = true;
+                        }
+                    }
+                }
+            }
+
+            // 3. Se disparou animação, espera ela terminar antes de deletar
+            if (animacaoTocou)
+            {
+                yield return new WaitForSeconds(0.5f); 
+            }
+
+            // 4. Remove os dados (Lógica original mantida)
             foreach (var grupo in gruposParaRemover)
             {
                 List<Monstro> aRemover = grupo.Take(3).ToList();
@@ -641,6 +680,8 @@ public class GridController : MonoBehaviour
                     Armazem.Remove(monstro);
                 }
             }
+
+            // 5. Atualiza a UI e checa vitória
             AtualizarUIArmazem();
             VerificarVitoriaDoEstagio();
         }
@@ -793,46 +834,83 @@ public class GridController : MonoBehaviour
     {
         if (armazemUIParent == null) return;
 
-        // 1. Destrói todos os ícones que estão atualmente na bandeja.
+        // 1. Limpa a bandeja
         foreach (Transform child in armazemUIParent)
         {
             Destroy(child.gameObject);
         }
 
-        // Se a bandeja estiver vazia, não há mais nada a fazer.
         if (Armazem.Count == 0) return;
 
-        // 2. Itera pela lista de dados 'Armazem' e instancia o prefab correto para cada monstro.
+        // 2. Recria os ícones
         foreach (Monstro monstro in Armazem)
         {
             GameObject prefabParaInstanciar;
-            Sprite spriteParaMostrar;
-
             int tipoMonstro = PegarTipoDeMonstro(monstro);
 
-            // Decide qual prefab e qual sprite usar
+            // Escolhe o prefab (Bandeja Normal ou Bandeja Bis)
             if (tipoMonstro == 2)
-            {
                 prefabParaInstanciar = iconeBandejaBisPrefab;
-                spriteParaMostrar = spritesDesbloqueadosBis[monstro.cor];
-            }
-            else // Tipo 1 (e qualquer outro caso)
-            {
+            else
                 prefabParaInstanciar = iconeBandejaNormalPrefab;
-                spriteParaMostrar = monstroSpritesBandeira[monstro.cor];
-            }
 
-            // 3. Instancia o prefab escolhido como filho da bandeja.
             GameObject novoIcone = Instantiate(prefabParaInstanciar, armazemUIParent);
             novoIcone.name = $"Icone_{monstro.cor}" + (tipoMonstro == 2 ? "_Bis" : "");
 
-            // 4. Configura a imagem do ícone recém-criado.
-            Image iconeImage = novoIcone.GetComponent<Image>();
-            if (iconeImage != null)
+            // --- AQUI ESTÁ A MUDANÇA INTELIGENTE ---
+            Animator animator = novoIcone.GetComponent<Animator>();
+
+            if (animator != null)
             {
-                iconeImage.sprite = spriteParaMostrar;
+                // Usamos "CorIndice" exatamente como no seu script Monstro.cs
+                // para que você possa reaproveitar o mesmo Animator Controller.
+                animator.SetInteger("CorIndice", monstro.cor);
+
+                // Se o seu Animator Controller usa "IsAvailable" para transição de bloqueado->idle,
+                // forçamos como true aqui, pois na bandeja ela sempre está "viva".
+                animator.SetBool("IsAvailable", true);
+
+                // Desincroniza as animações para ficar mais natural
+                animator.Play(0, -1, UnityEngine.Random.Range(0f, 1f));
+            }
+            else
+            {
+                // Fallback para Sprites estáticos se não tiver Animator
+                Image iconeImage = novoIcone.GetComponent<Image>();
+                if (iconeImage != null)
+                {
+                    if (tipoMonstro == 2)
+                        iconeImage.sprite = spritesDesbloqueadosBis[monstro.cor];
+                    else
+                        iconeImage.sprite = monstroSpritesBandeira[monstro.cor];
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Encontra o índice do filho visual no 'armazemUIParent' que corresponde ao monstro alvo.
+    /// </summary>
+    private int EncontrarIndiceVisualNaBandeja(Monstro monstroAlvo)
+    {
+        int indiceVisual = 0;
+        for (int i = 0; i < Armazem.Count; i++)
+        {
+            Monstro m = Armazem[i];
+
+            // Se achamos o monstro, retornamos o índice visual atual
+            if (m == monstroAlvo) return indiceVisual;
+
+            // Se for a segunda parte de um Bis, ele não conta como um slot visual,
+            // então não incrementamos o contador.
+            if (m.segundaParte != null && Armazem.IndexOf(m) > Armazem.IndexOf(m.segundaParte))
+            {
+                continue;
+            }
+
+            indiceVisual++;
+        }
+        return -1; // Não encontrado
     }
 
     /// <summary>
