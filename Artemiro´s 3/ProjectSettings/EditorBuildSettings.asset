@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/MyProject/Scenes/Fase1.unity
     guid: ca04a515cbeed064f8f621d619dec0d9
   - enabled: 1
-    path: Assets/MyProject/Scenes/TesteGrid.unity
+    path: Assets/MyProject/Scenes/Fase 1.unity
     guid: d45ea312aa09f844ca38cdd18674c40a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}

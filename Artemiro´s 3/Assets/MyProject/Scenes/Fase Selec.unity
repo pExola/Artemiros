@@ -640,6 +640,7 @@ GameObject:
   - component: {fileID: 1011188132}
   - component: {fileID: 1011188131}
   - component: {fileID: 1011188130}
+  - component: {fileID: 1011188133}
   m_Layer: 5
   m_Name: Play
   m_TagString: Untagged
@@ -710,7 +711,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1011188131}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1011188133}
+        m_TargetAssemblyTypeName: BotaoSelecao, Assembly-CSharp
+        m_MethodName: CarregarCena
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1011188131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -749,6 +762,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1011188128}
   m_CullTransparentMesh: 1
+--- !u!114 &1011188133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011188128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0912c5bdfda94ea49a5e877e7e087f2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotaoSelecao
+  cenaAlvo: Fase1
+  idDoNivel: 1
+  desbloqueadoPorPadrao: 1
+  meuBotao: {fileID: 1011188130}
+  cadeadoIcone: {fileID: 0}
 --- !u!1 &1155134473
 GameObject:
   m_ObjectHideFlags: 0
@@ -928,6 +958,7 @@ GameObject:
   - component: {fileID: 1310970241}
   - component: {fileID: 1310970240}
   - component: {fileID: 1310970239}
+  - component: {fileID: 1310970242}
   m_Layer: 5
   m_Name: Play (1)
   m_TagString: Untagged
@@ -1037,6 +1068,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1310970237}
   m_CullTransparentMesh: 1
+--- !u!114 &1310970242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310970237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0912c5bdfda94ea49a5e877e7e087f2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotaoSelecao
+  cenaAlvo: Fase2
+  idDoNivel: 2
+  desbloqueadoPorPadrao: 0
+  meuBotao: {fileID: 1310970239}
+  cadeadoIcone: {fileID: 0}
 --- !u!1 &1427484215
 GameObject:
   m_ObjectHideFlags: 0
@@ -1124,6 +1172,7 @@ GameObject:
   - component: {fileID: 1440113645}
   - component: {fileID: 1440113644}
   - component: {fileID: 1440113643}
+  - component: {fileID: 1440113646}
   m_Layer: 5
   m_Name: Play (2)
   m_TagString: Untagged
@@ -1233,6 +1282,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440113641}
   m_CullTransparentMesh: 1
+--- !u!114 &1440113646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1440113641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0912c5bdfda94ea49a5e877e7e087f2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotaoSelecao
+  cenaAlvo: Fase3
+  idDoNivel: 3
+  desbloqueadoPorPadrao: 0
+  meuBotao: {fileID: 1440113643}
+  cadeadoIcone: {fileID: 0}
 --- !u!1 &1475017970
 GameObject:
   m_ObjectHideFlags: 0
