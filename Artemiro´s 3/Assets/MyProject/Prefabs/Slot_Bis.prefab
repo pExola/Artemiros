@@ -142,7 +142,7 @@ MonoBehaviour:
   gridController: {fileID: 0}
   segundaParte: {fileID: 0}
   terceiraParte: {fileID: 0}
-  indicesCorParaAnimar: 00000000
+  indicesCorParaAnimar: 000000000100000002000000
 --- !u!95 &3362535270205364623
 Animator:
   serializedVersion: 7

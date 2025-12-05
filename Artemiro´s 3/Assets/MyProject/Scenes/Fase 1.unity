@@ -1723,7 +1723,7 @@ MonoBehaviour:
   iconeBandejaNormalPrefab: {fileID: 6368708318857004577, guid: 4dfca8e69e1c1834099c96ca95936cf2, type: 3}
   iconeBandejaBisPrefab: {fileID: 3679169296698950551, guid: 1c4874dc9b551cb468ed8d99f69d9078, type: 3}
   spriteCaixa: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  spriteParede: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  spriteParede: {fileID: 21300000, guid: b908b08d46da2a442b3b5328f730795a, type: 3}
   monstroSpritesBandeira:
   - {fileID: -1317908435499591305, guid: f5ca37239f18d634887244cafc9c0b99, type: 3}
   - {fileID: -8759933779451299138, guid: fced102f22b64ee428d533b0d415fd37, type: 3}

@@ -6,9 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using Unity.VisualScripting;
-using Unity.Properties;
-using UnityEditor.Tilemaps;
+
 
 /// <summary>
 /// Classe principal que controla toda a lógica do jogo.
