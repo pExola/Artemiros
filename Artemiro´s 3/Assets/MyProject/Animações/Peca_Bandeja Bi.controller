@@ -232,7 +232,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MonoAzulIdle
+  m_Name: BiAzulIdle
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -341,7 +341,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MonoVerdeIdle
+  m_Name: BIVerdeIdle
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -355,7 +355,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: fd8e0842242d74b41bb142619aa8af1a, type: 2}
+  m_Motion: {fileID: 7400000, guid: 1af0fd089ee55924cbd857a4aa38d894, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -381,7 +381,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 656bdacfc0f6890439905bdbb1058bc7, type: 2}
+  m_Motion: {fileID: 7400000, guid: ec810f33f972f44419e9dc3d3a6ef43e, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
