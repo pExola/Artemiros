@@ -1,10 +1,25 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuPrincipalManager : MonoBehaviour
 {
-    [Header("Nome da Cena de Sele��o de Fases")]
-    public string nomeCenaFases = "Fase Selec";
+    [Header("Ferramentas de Teste (DEV ONLY)")]
+    [Tooltip("Se marcado, apaga todo o progresso sempre que o jogo inicia.")]
+    public bool resetarProgressoAoIniciar = false; // Deixe TRUE para testar, FALSE para jogar normal
+
+    [Header("Nome da Cena de Seleção de Fases")]
+    public string nomeCenaFases = "SelecaoFases";
+
+    void Awake()
+    {
+        // Verifica se a opção de resetar está marcada no Inspector
+        if (resetarProgressoAoIniciar)
+        {
+            PlayerPrefs.DeleteAll();
+            PlayerPrefs.Save();
+            Debug.LogWarning("⚠️ ATENÇÃO: Progresso resetado pelo Modo de Teste!");
+        }
+    }
 
     public void BotaoPlay()
     {
@@ -13,7 +28,7 @@ public class MenuPrincipalManager : MonoBehaviour
 
     public void BotaoOptions()
     {
-        Debug.Log("Abrir Op��es (A implementar)");
+        Debug.Log("Abrir Opções (A implementar)");
     }
 
     public void BotaoQuit()

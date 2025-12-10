@@ -27,11 +27,11 @@ MonoBehaviour:
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
-      corDoMonstro: 0
+      corDoMonstro: 2
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
-      corDoMonstro: 0
+      corDoMonstro: 2
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 0
@@ -56,7 +56,7 @@ MonoBehaviour:
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1
-      corDoMonstro: 0
+      corDoMonstro: 2
       escondido: 0
       MonstrosASeremGeradosPeloGerador: 
     - tipo: 1

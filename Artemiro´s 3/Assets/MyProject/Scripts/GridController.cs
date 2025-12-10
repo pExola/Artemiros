@@ -22,6 +22,10 @@ public class GridController : MonoBehaviour
     public LevelGroup levelGroupAtual;
     public float tempoInicialDoNivel = 60f;
 
+    [Header("Progresso")]
+    [Tooltip("Qual é o ID deste nível?")]
+    public int idDesteNivel = 1;
+
     [Header("Referências de UI")]
     public RelogioUIController relogioVisual;
     public RectTransform boardContainer;
@@ -96,6 +100,25 @@ public class GridController : MonoBehaviour
 
         tempoRestante = tempoInicialDoNivel;
         StartCoroutine(InicializarEstagioAposLayout(estagioAtual));
+    }
+
+    /// <summary>
+    /// Salva o progresso no PlayerPrefs para desbloquear o próximo nível no menu.
+    /// </summary>
+    void SalvarProgresso()
+    {
+        // Se eu sou o nível 1, ao ganhar, libero o nível 2 (1 + 1).
+        int proximoNivel = idDesteNivel + 1;
+
+        // Recupera até onde o jogador já chegou antes (para não voltar o progresso caso ele rejogue a fase 1)
+        int progressoSalvo = PlayerPrefs.GetInt("ProgressoFases", 1);
+
+        // Só salvamos se o jogador alcançou um novo recorde de fase
+        if (proximoNivel > progressoSalvo)
+        {
+            PlayerPrefs.SetInt("ProgressoFases", proximoNivel);
+            PlayerPrefs.Save(); // Grava no disco imediatamente
+        }
     }
 
     /// <summary>
@@ -569,6 +592,7 @@ public class GridController : MonoBehaviour
         // Usamos "+ 1" porque os índices da lista começam em 0.
         if (estagioAtual + 1 >= levelGroupAtual.estagios.Count)
         {
+            SalvarProgresso();
             // Se era o último, é vitória!
             Vitoria("Nível Concluído!");
         }

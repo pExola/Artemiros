@@ -695,6 +695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d422d50ee4d06c47ac1527172655af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuPrincipalManager
+  resetarProgressoAoIniciar: 1
   nomeCenaFases: Fase Selec
 --- !u!1 &493082692
 GameObject:

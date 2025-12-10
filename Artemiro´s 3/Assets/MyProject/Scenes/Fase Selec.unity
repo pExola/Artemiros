@@ -774,7 +774,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0912c5bdfda94ea49a5e877e7e087f2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BotaoSelecao
-  cenaAlvo: Fase1
+  cenaAlvo: Trilha
   idDoNivel: 1
   desbloqueadoPorPadrao: 1
   meuBotao: {fileID: 1011188130}
