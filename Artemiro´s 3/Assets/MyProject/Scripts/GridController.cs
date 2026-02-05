@@ -56,6 +56,9 @@ public class GridController : MonoBehaviour
 
     [Tooltip("CARALHO, ISSO É A SPRITE QUE FICA NA BANDEJA!!!!!!")]
     public List<Sprite> monstroSpritesBandeira;
+    // Mapeia DATA (Monstro) -> VISUAL (GameObject da UI)
+    // Isso garante que nunca perderemos a referência da animação, mesmo se a lista mudar de ordem.
+    private Dictionary<Monstro, GameObject> visualMap = new Dictionary<Monstro, GameObject>();
 
     [Tooltip("Lista de sprites para as peças em estado DESBLOQUEADO.")]
     public List<Sprite> spritesDesbloqueados; 
@@ -191,6 +194,7 @@ public class GridController : MonoBehaviour
             Debug.Log($"bis {bis.x1},{bis.y1} - {bis.x2},{bis.y2}");
 
         Armazem.Clear();
+        visualMap.Clear();
         AtualizarUIArmazem();
 
         foreach (Transform child in boardContainer)
@@ -650,60 +654,65 @@ public class GridController : MonoBehaviour
 
     IEnumerator ChecarEEliminarGrupos()
     {
-        // 1. Identifica os grupos (Lógica original mantida)
+        // Usa LINQ para achar matches 
         var gruposParaRemover = Armazem.GroupBy(m => m.cor)
-                                     .Where(g => g.Sum(m => PegarTipoDeMonstro(m)) >= 3)
-                                     .ToList();
+                                        .Where(g => g.Sum(m => PegarTipoDeMonstro(m)) >= 3)
+                                        .ToList();
 
         if (gruposParaRemover.Any())
         {
             bool animacaoTocou = false;
 
-            // 2. Toca a animação visual ANTES de mexer nos dados
+            // FASE 1: Tocar Animações (Sem remover dados ainda)
             foreach (var grupo in gruposParaRemover)
             {
-                // Pega apenas os 3 primeiros que formam o match
                 List<Monstro> monstrosDoMatch = grupo.Take(3).ToList();
-
                 foreach (var monstro in monstrosDoMatch)
                 {
-                    // Ignora a segunda parte do Bis para não tentar animar o que não existe visualmente
-                    if (monstro.segundaParte != null && Armazem.IndexOf(monstro) > Armazem.IndexOf(monstro.segundaParte))
-                        continue;
-
-                    int indiceVisual = EncontrarIndiceVisualNaBandeja(monstro);
-
-                    if (indiceVisual != -1 && indiceVisual < armazemUIParent.childCount)
+                    // Busca o objeto visual direto no mapa 
+                    if (visualMap.ContainsKey(monstro))
                     {
-                        Transform iconeTransform = armazemUIParent.GetChild(indiceVisual);
-                        Animator anim = iconeTransform.GetComponent<Animator>();
-
-                        if (anim != null)
+                        GameObject icone = visualMap[monstro];
+                        if (icone != null)
                         {
-                            anim.SetTrigger("Combinar"); // <--- O PULO DO GATO
-                            animacaoTocou = true;
+                            Animator anim = icone.GetComponent<Animator>();
+                            if (anim != null)
+                            {
+                                anim.SetTrigger("Combinar");
+                                animacaoTocou = true;
+                            }
                         }
                     }
                 }
             }
 
-            // 3. Se disparou animação, espera ela terminar antes de deletar
+            // Se tocou animação, espera ela acontecer visualmente
             if (animacaoTocou)
             {
-                yield return new WaitForSeconds(0.5f); 
+                // O jogador pode clicar aqui à vontade! 
+                // O AtualizarUIArmazem vai rodar, mas NÃO vai destruir esses ícones
+                // porque eles estão no visualMap.
+                yield return new WaitForSeconds(0.5f);
             }
 
-            // 4. Remove os dados (Lógica original mantida)
+            // FASE 2: Remoção Definitiva
             foreach (var grupo in gruposParaRemover)
             {
                 List<Monstro> aRemover = grupo.Take(3).ToList();
                 foreach (var monstro in aRemover)
                 {
+                    // Remove visual
+                    if (visualMap.ContainsKey(monstro))
+                    {
+                        if (visualMap[monstro] != null) Destroy(visualMap[monstro]);
+                        visualMap.Remove(monstro);
+                    }
+                    // Remove dados
                     Armazem.Remove(monstro);
                 }
             }
 
-            // 5. Atualiza a UI e checa vitória
+            // Atualiza a bandeja para fechar os buracos (efeito esteira)
             AtualizarUIArmazem();
             VerificarVitoriaDoEstagio();
         }
@@ -856,57 +865,62 @@ public class GridController : MonoBehaviour
     {
         if (armazemUIParent == null) return;
 
-        // 1. Limpa a bandeja
-        foreach (Transform child in armazemUIParent)
+        // 1. Criação e Atualização
+        for (int i = 0; i < Armazem.Count; i++)
         {
-            Destroy(child.gameObject);
+            Monstro monstro = Armazem[i];
+
+            // Se esse monstro ainda não tem um ícone visual, criamos agora
+            if (!visualMap.ContainsKey(monstro))
+            {
+                GameObject prefab = (PegarTipoDeMonstro(monstro) == 2) ? iconeBandejaBisPrefab : iconeBandejaNormalPrefab;
+                GameObject novoIcone = Instantiate(prefab, armazemUIParent);
+
+                // Configurações iniciais
+                novoIcone.name = $"Icone_{monstro.cor}";
+                Animator anim = novoIcone.GetComponent<Animator>();
+                if (anim != null)
+                {
+                    anim.SetInteger("CorIndice", monstro.cor);
+                    anim.SetBool("IsAvailable", true);
+                    anim.Play(0, -1, UnityEngine.Random.Range(0f, 1f));
+                }
+                else
+                {
+                    // Fallback para Sprite estático se não tiver Animator
+                    Image img = novoIcone.GetComponent<Image>();
+                    if (img != null)
+                    {
+                        if (PegarTipoDeMonstro(monstro) == 2) img.sprite = spritesDesbloqueadosBis[monstro.cor];
+                        else img.sprite = monstroSpritesBandeira[monstro.cor];
+                    }
+                }
+
+                // REGISTRA NO MAPA
+                visualMap.Add(monstro, novoIcone);
+            }
+
+            // 2. Ordenação (Sync de Posição)
+            // Garante que o ícone visual esteja na mesma posição da lista (0, 1, 2...)
+            // O SetSiblingIndex move o objeto na hierarquia da Unity sem destruir
+            if (visualMap.ContainsKey(monstro))
+            {
+                visualMap[monstro].transform.SetSiblingIndex(i);
+            }
         }
 
-        if (Armazem.Count == 0) return;
-
-        // 2. Recria os ícones
-        foreach (Monstro monstro in Armazem)
+        // (Opcional) Limpeza de órfãos
+        // Se tiver algo no mapa que NÃO está mais no Armazem, deve ser destruído.
+        // (Geralmente o ChecarEEliminarGrupos cuida disso, mas é bom ter redundância)
+        List<Monstro> paraRemover = new List<Monstro>();
+        foreach (var kvp in visualMap)
         {
-            GameObject prefabParaInstanciar;
-            int tipoMonstro = PegarTipoDeMonstro(monstro);
-
-            // Escolhe o prefab (Bandeja Normal ou Bandeja Bis)
-            if (tipoMonstro == 2)
-                prefabParaInstanciar = iconeBandejaBisPrefab;
-            else
-                prefabParaInstanciar = iconeBandejaNormalPrefab;
-
-            GameObject novoIcone = Instantiate(prefabParaInstanciar, armazemUIParent);
-            novoIcone.name = $"Icone_{monstro.cor}" + (tipoMonstro == 2 ? "_Bis" : "");
-
-            // --- AQUI ESTÁ A MUDANÇA INTELIGENTE ---
-            Animator animator = novoIcone.GetComponent<Animator>();
-
-            if (animator != null)
-            {
-                // Usamos "CorIndice" exatamente como no seu script Monstro.cs
-                // para que você possa reaproveitar o mesmo Animator Controller.
-                animator.SetInteger("CorIndice", monstro.cor);
-
-                // Se o seu Animator Controller usa "IsAvailable" para transição de bloqueado->idle,
-                // forçamos como true aqui, pois na bandeja ela sempre está "viva".
-                animator.SetBool("IsAvailable", true);
-
-                // Desincroniza as animações para ficar mais natural
-                animator.Play(0, -1, UnityEngine.Random.Range(0f, 1f));
-            }
-            else
-            {
-                // Fallback para Sprites estáticos se não tiver Animator
-                Image iconeImage = novoIcone.GetComponent<Image>();
-                if (iconeImage != null)
-                {
-                    if (tipoMonstro == 2)
-                        iconeImage.sprite = spritesDesbloqueadosBis[monstro.cor];
-                    else
-                        iconeImage.sprite = monstroSpritesBandeira[monstro.cor];
-                }
-            }
+            if (!Armazem.Contains(kvp.Key)) paraRemover.Add(kvp.Key);
+        }
+        foreach (var m in paraRemover)
+        {
+            if (visualMap[m] != null) Destroy(visualMap[m]);
+            visualMap.Remove(m);
         }
     }
 
