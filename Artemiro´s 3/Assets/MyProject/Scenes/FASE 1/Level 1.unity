@@ -2060,6 +2060,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4d7ec1a3b9e0dc48a6bce6830f12550, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  artemiroAnimator: {fileID: 1133665987}
   corInicial: {r: 0, g: 1, b: 0, a: 1}
   corAmarela: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   corLaranja: {r: 1, g: 0.5, b: 0, a: 1}
@@ -2252,8 +2253,8 @@ MonoBehaviour:
   armazemUIParent: {fileID: 98815071}
   painelVitoria: {fileID: 260816301}
   painelDerrota: {fileID: 584852935}
-  duracaoAnimacao: 0.1
-  delayAposCombinacao: 0.25
+  duracaoAnimacao: 0.2
+  delayAposCombinacao: 0.2
   deslocamentoHorizontalBis: -70
   slotPrefab: {fileID: 1567658956690581314, guid: 79e1fb3de915e0a4798b00529c28b118, type: 3}
   slotBisPrefab: {fileID: 1567658956690581314, guid: 0281781c934108642b39f96b27a394bd, type: 3}

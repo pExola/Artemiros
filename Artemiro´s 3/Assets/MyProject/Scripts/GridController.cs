@@ -415,17 +415,15 @@ public class GridController : MonoBehaviour
         // Isso cria todos os ícones, incluindo o novo.
         AtualizarUIArmazem();
         yield return new WaitForEndOfFrame();
-        // 4. Encontra o ícone que acabamos de adicionar e o esconde temporariamente.
-        int indiceFinal = Armazem.IndexOf(monstro);
-        if (indiceFinal < 0 || indiceFinal >= armazemUIParent.childCount)
+        // 4. Encontra o ícone pelo Dicionário (100% blindado contra reordenação)
+        if (!visualMap.ContainsKey(monstro))
         {
-            // Se algo deu errado e não encontramos o monstro, cancela a animação para evitar erros.
-            Debug.LogError("Não foi possível encontrar o monstro recém-adicionado na bandeja. Verifique a lógica de AdicionarAoArmazem.");
+            Debug.LogError("Monstro não encontrado no visualMap.");
             isAnimating = false;
             yield break;
         }
 
-        Transform iconeFinal = armazemUIParent.GetChild(indiceFinal);
+        Transform iconeFinal = visualMap[monstro].transform;
         Image imagemDoIconeFinal = iconeFinal.GetComponent<Image>();
 
         if (imagemDoIconeFinal != null)
@@ -536,7 +534,8 @@ public class GridController : MonoBehaviour
         {
             Armazem.Add(monstro);
         }
-        Armazem.Sort((a, b) => a.cor.CompareTo(b.cor));
+        // OrderBy garante que peças da mesma cor fiquem na ordem que o jogador clicou
+        Armazem = Armazem.OrderBy(m => m.cor).ToList();
     }
 
     /// <summary>
@@ -654,22 +653,58 @@ public class GridController : MonoBehaviour
 
     IEnumerator ChecarEEliminarGrupos()
     {
-        // Usa LINQ para achar matches 
-        var gruposParaRemover = Armazem.GroupBy(m => m.cor)
-                                        .Where(g => g.Sum(m => PegarTipoDeMonstro(m)) >= 3)
-                                        .ToList();
+        // Lista para guardar os grupos perfeitos que fecharem exatamente 3 pontos
+        List<List<Monstro>> matchesConfirmados = new List<List<Monstro>>();
 
-        if (gruposParaRemover.Any())
+        // 1. Agrupa todas as peças na bandeja por cor
+        var gruposPorCor = Armazem.GroupBy(m => m.cor).ToList();
+
+        foreach (var grupo in gruposPorCor)
+        {
+            // Verifica se aquele grupo tem pontuação suficiente para um match
+            int somaTotalDoGrupo = grupo.Sum(m => PegarTipoDeMonstro(m));
+
+            if (somaTotalDoGrupo >= 3)
+            {
+                List<Monstro> tentativaDeMatch = new List<Monstro>();
+                int somaAtual = 0;
+
+                // O TRUQUE DE MESTRE: Ordenar do mais pesado (Tris/Bis) para o mais leve (Normal).
+                // Se tivermos [Normal, Normal, Bis], a lista vira [Bis, Normal, Normal].
+                // Isso garante que o Bis engula apenas 1 Normal e feche os 3 pontos perfeitamente.
+                var pecasOrdenadas = grupo.OrderByDescending(m => PegarTipoDeMonstro(m)).ToList();
+
+                foreach (var peca in pecasOrdenadas)
+                {
+                    int valorPeca = PegarTipoDeMonstro(peca);
+
+                    // Só adiciona a peça no match se ela não fizer a soma passar de 3
+                    if (somaAtual + valorPeca <= 3)
+                    {
+                        tentativaDeMatch.Add(peca);
+                        somaAtual += valorPeca;
+                    }
+
+                    // Se bateu 3 exato, fechamos o pacote e paramos de procurar nesta cor!
+                    if (somaAtual == 3)
+                    {
+                        matchesConfirmados.Add(tentativaDeMatch);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 2. Executa as animações e remoções APENAS para os matches perfeitos confirmados
+        if (matchesConfirmados.Any())
         {
             bool animacaoTocou = false;
 
-            // FASE 1: Tocar Animações (Sem remover dados ainda)
-            foreach (var grupo in gruposParaRemover)
+            // --- FASE 1: Tocar Animações ---
+            foreach (var match in matchesConfirmados)
             {
-                List<Monstro> monstrosDoMatch = grupo.Take(3).ToList();
-                foreach (var monstro in monstrosDoMatch)
+                foreach (var monstro in match)
                 {
-                    // Busca o objeto visual direto no mapa 
                     if (visualMap.ContainsKey(monstro))
                     {
                         GameObject icone = visualMap[monstro];
@@ -686,33 +721,29 @@ public class GridController : MonoBehaviour
                 }
             }
 
-            // Se tocou animação, espera ela acontecer visualmente
+            // Pausa para a animação visual ocorrer
             if (animacaoTocou)
             {
-                // O jogador pode clicar aqui à vontade! 
-                // O AtualizarUIArmazem vai rodar, mas NÃO vai destruir esses ícones
-                // porque eles estão no visualMap.
                 yield return new WaitForSeconds(0.5f);
             }
 
-            // FASE 2: Remoção Definitiva
-            foreach (var grupo in gruposParaRemover)
+            // --- FASE 2: Remoção Definitiva ---
+            foreach (var match in matchesConfirmados)
             {
-                List<Monstro> aRemover = grupo.Take(3).ToList();
-                foreach (var monstro in aRemover)
+                foreach (var monstro in match)
                 {
-                    // Remove visual
+                    // Remove do Visual
                     if (visualMap.ContainsKey(monstro))
                     {
                         if (visualMap[monstro] != null) Destroy(visualMap[monstro]);
                         visualMap.Remove(monstro);
                     }
-                    // Remove dados
+                    // Remove dos Dados
                     Armazem.Remove(monstro);
                 }
             }
 
-            // Atualiza a bandeja para fechar os buracos (efeito esteira)
+            // Atualiza a bandeja para reorganizar ("puxar" os que sobraram para a esquerda)
             AtualizarUIArmazem();
             VerificarVitoriaDoEstagio();
         }
