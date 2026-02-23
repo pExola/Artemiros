@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using MoreMountains.Feedbacks;  
 
 public class Monstro : MonoBehaviour
 {
@@ -26,6 +27,10 @@ public class Monstro : MonoBehaviour
     [Header("Configuração de Animação")]
     [Tooltip("Defina o índice da 'cor' que deve disparar as animações (ex: 2 para Laranja)")]
     [SerializeField] private List<int> indicesCorParaAnimar = new List<int>();
+
+    [Header("Game Feel")]
+    [Tooltip("Arraste o componente MMF Player desta peça para cá")]
+    public MMF_Player squashFeedback;
 
     void Awake()
     {

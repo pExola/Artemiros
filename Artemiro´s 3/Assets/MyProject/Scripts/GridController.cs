@@ -403,9 +403,20 @@ public class GridController : MonoBehaviour
 
         isAnimating = true;
 
+        if (monstro.squashFeedback != null)
+        {
+            // Dispara a animação visual configurada no Inspector
+            monstro.squashFeedback.PlayFeedbacks();
+
+            // Pausa a lógica do jogo pelo tempo exato que o Squash dura (ex: 0.15s).
+            // Isso garante que a peça não evapore ou voe enquanto está sendo esmagada.
+            yield return new WaitForSeconds(monstro.squashFeedback.TotalDuration);
+        }
+
         // 1. Guarda a posição inicial e o sprite para a animação.
         Vector3 startPosition = monstro.transform.position;
-        Sprite spriteDaPeca = monstro.GetComponent<Image>().sprite;
+        Image imagemDoMonstro = monstro.GetComponent<Image>();
+        Sprite spriteDaPeca = imagemDoMonstro != null ? imagemDoMonstro.sprite : null;
 
         // 2. Atualiza a lógica do jogo (os dados).
         AdicionarAoArmazem(monstro);
